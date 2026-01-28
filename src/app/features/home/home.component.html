@@ -1,0 +1,14 @@
+<div class="home-container">
+    <header class="hero">
+        <h1>Welcome to <span class="gradient-text">M1P13 MEAN Project</span></h1>
+        <p class="hero-subtitle">A high-performance Angular frontend structured for excellence.</p>
+    </header>
+
+    <section class="features-grid">
+        <div *ngFor="let feature of features" class="premium-card feature-item">
+            <div class="feature-icon">{{ feature.Icon }}</div>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.desc }}</p>
+        </div>
+    </section>
+</div>
