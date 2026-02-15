@@ -1,0 +1,177 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- En-tête -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-gray-900">Tableau de Bord</h1>
+      <p class="mt-1 text-sm text-gray-500">Vue d'ensemble de votre centre commercial</p>
+    </div>
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    }
+
+    <!-- Erreur -->
+    @if (error()) {
+      <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+        <p class="text-sm text-red-700">{{ error() }}</p>
+      </div>
+    }
+
+    <!-- Statistiques -->
+    @if (!loading() && stats()) {
+      <!-- KPIs -->
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <!-- Boutiques -->
+        <div class="bg-white p-5 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="p-3 bg-indigo-100 rounded-lg">
+                <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-xs font-medium text-gray-500">Boutiques Occupées</p>
+              <p class="text-2xl font-bold text-gray-900">
+                {{ stats()?.boutiques?.occupees || 0 }}<span class="text-lg text-gray-500">/{{ stats()?.boutiques?.total || 0 }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loyers -->
+        <div class="bg-white p-5 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="p-3 bg-green-100 rounded-lg">
+                <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-xs font-medium text-gray-500">Loyers du mois</p>
+              <p class="text-2xl font-bold text-gray-900">
+                {{ formatCurrency(stats()?.loyers?.payesMois || 0) }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Impayés -->
+        <div class="bg-white p-5 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="p-3 bg-red-100 rounded-lg">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-xs font-medium text-gray-500">Loyers en retard</p>
+              <p class="text-2xl font-bold text-red-600">
+                {{ stats()?.loyers?.nombreImpayes || 0 }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Commerçants -->
+        <div class="bg-white p-5 rounded-lg shadow">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="p-3 bg-blue-100 rounded-lg">
+                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4">
+              <p class="text-xs font-medium text-gray-500">Commerçants</p>
+              <p class="text-2xl font-bold text-gray-900">
+                {{ stats()?.users?.commercants || 0 }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loyers impayés -->
+      @if ((stats()?.loyers?.loyersImpayes?.length || 0) > 0) {
+        <div class="bg-white shadow rounded-lg mb-8">
+          <div class="px-6 py-5">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Loyers en retard</h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Boutique</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commerçant</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Retard</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant dû</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  @for (item of stats()?.loyers?.loyersImpayes?.slice(0, 5) || []; track item.loyer._id) {
+                    <tr>
+                      <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                        {{ item.loyer?.boutique?.nom || '-' }}
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-500">
+                        {{ item.loyer?.commercant?.prenom }} {{ item.loyer?.commercant?.nom }}
+                      </td>
+                      <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                          {{ item.moisEnRetard }} mois
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                        {{ formatCurrency(item.montantDu) }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Évolution mensuelle -->
+      @if ((stats()?.chiffreAffaires?.evolutionMensuelle || []).length > 0) {
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-6 py-5">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Évolution mensuelle</h3>
+            <div class="mt-5">
+              <div class="flex items-end space-x-2 h-64">
+                @for (month of stats()?.chiffreAffaires?.evolutionMensuelle || []; track month.mois) {
+                  <div class="flex-1 flex flex-col items-center">
+                    <div class="w-full bg-indigo-600 rounded-t hover:bg-indigo-700 transition-colors"
+                         [style.height.%]="(month.montant / (stats()?.chiffreAffaires?.annuel || 1)) * 100"
+                         [title]="formatCurrency(month.montant)">
+                    </div>
+                    <span class="text-xs text-gray-500 mt-2">{{ getMonthName(month.mois) }}</span>
+                  </div>
+                }
+              </div>
+              <div class="mt-6 text-center">
+                <p class="text-sm text-gray-500">Total annuel</p>
+                <p class="text-2xl font-semibold text-gray-900">
+                  {{ formatCurrency(stats()?.chiffreAffaires?.annuel || 0) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    }
+
+  </div>
+</div>
+

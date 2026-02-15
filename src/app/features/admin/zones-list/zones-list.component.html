@@ -1,0 +1,120 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">Gestion des Zones</h1>
+      <button (click)="openCreateModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center">
+        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Ajouter une Zone
+      </button>
+    </div>
+
+    <!-- Error -->
+    @if (error()) {
+      <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
+        <p class="text-red-700">{{ error() }}</p>
+      </div>
+    }
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="flex justify-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    }
+
+    <!-- Grid -->
+    @if (!loading()) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (zone of zones(); track zone._id) {
+          <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-lg font-semibold text-gray-900">{{ zone.nom }}</h3>
+              <span class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
+                Étage {{ zone.etage }}
+              </span>
+            </div>
+
+            @if (zone.description) {
+              <p class="text-gray-600 text-sm mb-4">{{ zone.description }}</p>
+            }
+
+            <div class="flex items-center text-sm text-gray-500 mb-4">
+              <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+              </svg>
+              {{ zone.superficie }} m²
+            </div>
+
+            <div class="flex space-x-2">
+              <button (click)="openEditModal(zone)" class="flex-1 px-3 py-2 bg-blue-50 text-blue-600 rounded hover:bg-blue-100">
+                Modifier
+              </button>
+              <button (click)="deleteZone(zone._id!)" class="flex-1 px-3 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100">
+                Supprimer
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Modal -->
+    @if (showModal()) {
+      <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium">{{ isEditMode() ? 'Modifier' : 'Ajouter' }} une Zone</h3>
+            <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <form (ngSubmit)="save()">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Nom *</label>
+                <input [(ngModel)]="formData.nom" name="nom" required
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Description</label>
+                <textarea [(ngModel)]="formData.description" name="description" rows="3"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Étage *</label>
+                <input type="number" [(ngModel)]="formData.etage" name="etage" required
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Superficie (m²)</label>
+                <input type="number" [(ngModel)]="formData.superficie" name="superficie"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 mt-6">
+              <button type="button" (click)="closeModal()"
+                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                Annuler
+              </button>
+              <button type="submit"
+                class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                {{ isEditMode() ? 'Mettre à jour' : 'Créer' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+

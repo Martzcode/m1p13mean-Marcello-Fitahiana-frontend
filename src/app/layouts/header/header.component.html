@@ -1,0 +1,131 @@
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <!-- Logo and Brand -->
+      <div class="flex items-center">
+        <a routerLink="/" class="flex items-center">
+          <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          <span class="ml-2 text-xl font-bold text-gray-900">Centre Commercial</span>
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      @if (authService.isAuthenticated()) {
+        <div class="hidden md:flex md:items-center md:space-x-4">
+          <!-- Admin Menu -->
+          @if (authService.isAdmin()) {
+            <a routerLink="/admin/dashboard" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Dashboard
+            </a>
+            <a routerLink="/admin/boutiques" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Boutiques
+            </a>
+            <a routerLink="/admin/zones" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Zones
+            </a>
+            <a routerLink="/admin/loyers" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Loyers
+            </a>
+            <a routerLink="/admin/users" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Utilisateurs
+            </a>
+            <a routerLink="/admin/employes" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Employés
+            </a>
+          }
+
+          <!-- Merchant Menu -->
+          @if (authService.isMerchant()) {
+            <a routerLink="/merchant/dashboard" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Tableau de bord
+            </a>
+            <a routerLink="/merchant/boutiques" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Mes Boutiques
+            </a>
+            <a routerLink="/merchant/loyers" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Mes Loyers
+            </a>
+          }
+
+          <!-- User Menu -->
+          <div class="relative">
+            <button (click)="toggleUserMenu()" class="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <div class="h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-semibold">
+                {{ getUserInitials() }}
+              </div>
+              <span class="hidden lg:block">{{ authService.currentUser()?.prenom }}</span>
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+
+            @if (userMenuOpen()) {
+              <div class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                <div class="py-1">
+                  <a routerLink="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Mon profil
+                  </a>
+                  <a routerLink="/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Paramètres
+                  </a>
+                  <button (click)="logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Déconnexion
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="hidden md:flex md:items-center md:space-x-4">
+          <a routerLink="/login" class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+            Connexion
+          </a>
+          <a routerLink="/register" class="px-4 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+            S'inscrire
+          </a>
+        </div>
+      }
+
+      <!-- Mobile menu button -->
+      <div class="flex items-center md:hidden">
+        <button (click)="toggleMobileMenu()" class="p-2 rounded-md text-gray-700 hover:bg-gray-100">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            @if (mobileMenuOpen()) {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            } @else {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            }
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  @if (mobileMenuOpen() && authService.isAuthenticated()) {
+    <div class="md:hidden border-t border-gray-200">
+      <div class="px-2 pt-2 pb-3 space-y-1">
+        @if (authService.isAdmin()) {
+          <a routerLink="/admin/dashboard" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Dashboard</a>
+          <a routerLink="/admin/boutiques" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Boutiques</a>
+          <a routerLink="/admin/zones" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Zones</a>
+          <a routerLink="/admin/loyers" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Loyers</a>
+          <a routerLink="/admin/users" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Utilisateurs</a>
+          <a routerLink="/admin/employes" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Employés</a>
+        }
+        <div class="border-t border-gray-200 pt-4 pb-3">
+          <div class="px-3 mb-3">
+            <div class="text-base font-medium text-gray-800">{{ authService.currentUser()?.nom }} {{ authService.currentUser()?.prenom }}</div>
+            <div class="text-sm font-medium text-gray-500">{{ authService.currentUser()?.email }}</div>
+          </div>
+          <a routerLink="/profile" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Mon profil</a>
+          <button (click)="logout()" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Déconnexion</button>
+        </div>
+      </div>
+    </div>
+  }
+</header>
+

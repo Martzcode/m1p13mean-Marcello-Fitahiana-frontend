@@ -1,17 +1,9 @@
-<div class="app-container">
-  <nav class="navbar">
-    <div class="nav-brand">M1P13 MEAN</div>
-    <div class="nav-links">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-    </div>
-  </nav>
+<div class="min-h-screen flex flex-col bg-gray-50">
+  <app-header></app-header>
 
-  <main class="content">
+  <main class="flex-grow">
     <router-outlet></router-outlet>
   </main>
 
-  <footer class="footer">
-    <p>&copy; 2026 M1P13 MEAN Project - Premium Frontend</p>
-  </footer>
+  <app-footer></app-footer>
 </div>
