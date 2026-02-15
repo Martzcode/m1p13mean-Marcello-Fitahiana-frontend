@@ -1,0 +1,224 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 p-6">
+  <!-- Header Section -->
+  <div class="max-w-7xl mx-auto mb-8">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+          Mes Boutiques
+        </h1>
+        <p class="text-gray-600 mt-2">Gérez vos boutiques et consultez leurs statistiques</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="max-w-7xl mx-auto mb-4">
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm">
+      <p class="text-red-800 font-medium">{{ errorMessage }}</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="max-w-7xl mx-auto">
+    <div class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+    </div>
+  </div>
+
+  <!-- Liste des Boutiques -->
+  <div *ngIf="!isLoading" class="max-w-7xl mx-auto">
+    <!-- Message si aucune boutique -->
+    <div *ngIf="mesBoutiques.length === 0" class="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
+      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+      </svg>
+      <p class="text-gray-500 text-lg font-medium">Vous n'avez aucune boutique assignée</p>
+      <p class="text-gray-400 text-sm mt-2">Contactez l'administrateur pour obtenir l'accès à une boutique</p>
+    </div>
+
+    <!-- Grid des Boutiques -->
+    <div *ngIf="mesBoutiques.length > 0" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div *ngFor="let boutique of mesBoutiques"
+           (click)="selectBoutique(boutique)"
+           class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+
+        <!-- Header Card -->
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-6">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-2xl font-bold">{{ boutique.nom }}</h3>
+              <p class="text-emerald-100 mt-1">{{ boutique.numero }}</p>
+            </div>
+            <span [class]="getStatutBadgeClass(boutique.statut)"
+                  class="px-3 py-1 text-xs font-semibold rounded-full">
+              {{ boutique.statut }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Infos Boutique -->
+        <div class="p-6">
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span class="text-gray-700">Zone: <span class="font-semibold">{{ boutique.zone?.nom || 'Non définie' }}</span></span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+              </svg>
+              <span class="text-gray-700">Surface: <span class="font-semibold">{{ boutique.surface || 'N/A' }} m²</span></span>
+            </div>
+
+            <div *ngIf="boutique.loyerActuel" class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span class="text-gray-700">Loyer: <span class="font-semibold text-purple-600">{{ boutique.loyerActuel.montant | number:'1.0-0' }} Ar/mois</span></span>
+            </div>
+          </div>
+
+          <!-- Stats Boutique -->
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Statistiques (Mois en cours)</h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-blue-50 rounded-lg p-3 text-center">
+                <p class="text-2xl font-bold text-blue-600">{{ getStats(boutique._id).nbProduits }}</p>
+                <p class="text-xs text-gray-600 mt-1">Produits</p>
+              </div>
+              <div class="bg-green-50 rounded-lg p-3 text-center">
+                <p class="text-2xl font-bold text-green-600">{{ getStats(boutique._id).nbCommandes }}</p>
+                <p class="text-xs text-gray-600 mt-1">Commandes</p>
+              </div>
+              <div class="bg-purple-50 rounded-lg p-3 text-center col-span-2">
+                <p class="text-2xl font-bold text-purple-600">{{ getStats(boutique._id).chiffreAffaires | number:'1.0-0' }} Ar</p>
+                <p class="text-xs text-gray-600 mt-1">Chiffre d'Affaires</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton Détails -->
+          <div class="mt-6">
+            <button class="w-full px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 font-medium">
+              Voir les détails
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Détails Boutique -->
+<div *ngIf="selectedBoutique" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slide-up">
+    <!-- Header Modal -->
+    <div class="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center">
+      <div>
+        <h3 class="text-2xl font-bold">{{ selectedBoutique.nom }}</h3>
+        <p class="text-emerald-100 text-sm mt-1">{{ selectedBoutique.numero }}</p>
+      </div>
+      <button (click)="closeBoutiqueDetail()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-all duration-150">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Content Modal -->
+    <div class="p-6 space-y-6">
+      <!-- Informations Générales -->
+      <div>
+        <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Informations Générales
+        </h4>
+        <div class="bg-gray-50 rounded-xl p-4 space-y-3">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Numéro:</span>
+            <span class="font-semibold text-gray-900">{{ selectedBoutique.numero }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Zone:</span>
+            <span class="font-semibold text-gray-900">{{ selectedBoutique.zone?.nom || 'Non définie' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Surface:</span>
+            <span class="font-semibold text-gray-900">{{ selectedBoutique.surface || 'N/A' }} m²</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Statut:</span>
+            <span [class]="getStatutBadgeClass(selectedBoutique.statut)"
+                  class="px-3 py-1 text-xs font-semibold rounded-full">
+              {{ selectedBoutique.statut }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loyer -->
+      <div *ngIf="selectedBoutique.loyerActuel">
+        <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Loyer Actuel
+        </h4>
+        <div class="bg-purple-50 rounded-xl p-4 space-y-3">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Montant mensuel:</span>
+            <span class="font-bold text-purple-600 text-lg">{{ selectedBoutique.loyerActuel.montant | number:'1.0-0' }} Ar</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Périodicité:</span>
+            <span class="font-semibold text-gray-900">{{ selectedBoutique.loyerActuel.periodicite }}</span>
+          </div>
+          <div *ngIf="selectedBoutique.loyerActuel.dateDebut" class="flex justify-between">
+            <span class="text-gray-600">Date début:</span>
+            <span class="font-semibold text-gray-900">{{ selectedBoutique.loyerActuel.dateDebut | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistiques Détaillées -->
+      <div>
+        <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Statistiques (Mois en cours)
+        </h4>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-blue-50 rounded-xl p-4 text-center">
+            <p class="text-3xl font-bold text-blue-600">{{ getStats(selectedBoutique._id).nbProduits }}</p>
+            <p class="text-sm text-gray-600 mt-2">Total Produits</p>
+            <p class="text-xs text-gray-500 mt-1">({{ getStats(selectedBoutique._id).produitsActifs }} actifs)</p>
+          </div>
+          <div class="bg-green-50 rounded-xl p-4 text-center">
+            <p class="text-3xl font-bold text-green-600">{{ getStats(selectedBoutique._id).nbCommandes }}</p>
+            <p class="text-sm text-gray-600 mt-2">Commandes</p>
+          </div>
+          <div class="bg-purple-50 rounded-xl p-4 text-center col-span-2">
+            <p class="text-3xl font-bold text-purple-600">{{ getStats(selectedBoutique._id).chiffreAffaires | number:'1.0-0' }} Ar</p>
+            <p class="text-sm text-gray-600 mt-2">Chiffre d'Affaires</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Modal -->
+    <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-2xl">
+      <button (click)="closeBoutiqueDetail()"
+              class="w-full px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-150 font-medium">
+        Fermer
+      </button>
+    </div>
+  </div>
+</div>
+

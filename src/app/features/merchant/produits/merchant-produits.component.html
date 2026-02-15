@@ -1,0 +1,331 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-violet-50 p-6">
+  <!-- Header -->
+  <div class="max-w-7xl mx-auto mb-8">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+          Gestion des Produits
+        </h1>
+        <p class="text-gray-600 mt-2">Gérez vos produits et stocks</p>
+      </div>
+      <button (click)="openCreateModal()"
+              class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Ajouter un produit
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="max-w-7xl mx-auto mb-4">
+    <div *ngIf="successMessage" class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-sm animate-fade-in">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-green-800 font-medium">{{ successMessage }}</p>
+      </div>
+    </div>
+    <div *ngIf="errorMessage" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm animate-fade-in">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-red-800 font-medium">{{ errorMessage }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="max-w-7xl mx-auto mb-6">
+    <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- Recherche -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Recherche</label>
+          <div class="relative">
+            <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" placeholder="Nom ou description..."
+                   class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Boutique -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Boutique</label>
+          <select [(ngModel)]="selectedBoutique" (ngModelChange)="applyFilters()"
+                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <option value="">Toutes</option>
+            <option *ngFor="let boutique of mesBoutiques" [value]="boutique._id">{{ boutique.nom }}</option>
+          </select>
+        </div>
+
+        <!-- Catégorie -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Catégorie</label>
+          <select [(ngModel)]="selectedCategorie" (ngModelChange)="applyFilters()"
+                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <option value="">Toutes</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+
+        <!-- Stock -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Stock</label>
+          <select [(ngModel)]="selectedStock" (ngModelChange)="applyFilters()"
+                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <option value="">Tous</option>
+            <option value="rupture">Rupture (0)</option>
+            <option value="faible">Faible (< 10)</option>
+            <option value="ok">OK (≥ 10)</option>
+          </select>
+        </div>
+
+        <!-- Statut -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Statut</label>
+          <select [(ngModel)]="selectedStatut" (ngModelChange)="applyFilters()"
+                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <option value="">Tous</option>
+            <option value="actif">Actif</option>
+            <option value="inactif">Inactif</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="max-w-7xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+      <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+
+      <div *ngIf="!isLoading && paginatedProduits.length === 0" class="text-center py-20">
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        <p class="text-gray-500 text-lg font-medium">Aucun produit trouvé</p>
+      </div>
+
+      <div *ngIf="!isLoading && paginatedProduits.length > 0" class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Produit</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Prix</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Stock</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Boutique</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Catégorie</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Statut</th>
+              <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr *ngFor="let produit of paginatedProduits" class="hover:bg-gray-50 transition-colors duration-150">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-gradient-to-br from-indigo-100 to-violet-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-900">{{ produit.nom }}</div>
+                    <div class="text-xs text-gray-500">{{ produit.description | slice:0:40 }}{{ produit.description?.length > 40 ? '...' : '' }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm font-bold text-indigo-600">{{ produit.prix | number:'1.0-0' }} Ar</div>
+              </td>
+              <td class="px-6 py-4">
+                <span [class]="getStockBadgeClass(produit.stock)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                  {{ produit.stock }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-700">
+                {{ getBoutiqueName(produit.boutique?._id || produit.boutique) }}
+              </td>
+              <td class="px-6 py-4">
+                <span class="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">
+                  {{ produit.categorie || 'Autre' }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span [class]="produit.actif !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                      class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                  {{ produit.actif !== false ? 'Actif' : 'Inactif' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-right text-sm font-medium">
+                <div class="flex justify-end gap-2">
+                  <button (click)="openEditModal(produit)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Modifier">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button (click)="toggleProduitStatus(produit)"
+                          [class]="produit.actif !== false ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'"
+                          class="p-2 rounded-lg transition-colors"
+                          [title]="produit.actif !== false ? 'Désactiver' : 'Activer'">
+                    <svg *ngIf="produit.actif !== false" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                    </svg>
+                    <svg *ngIf="produit.actif === false" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </button>
+                  <button (click)="deleteProduit(produit)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="!isLoading && filteredProduits.length > 0" class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t">
+        <div class="text-sm text-gray-700">
+          Affichage de <span class="font-semibold">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> à
+          <span class="font-semibold">{{ Math.min(currentPage * itemsPerPage, filteredProduits.length) }}</span> sur
+          <span class="font-semibold">{{ filteredProduits.length }}</span> résultats
+        </div>
+        <div class="flex gap-2">
+          <button (click)="previousPage()" [disabled]="currentPage === 1"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Précédent
+          </button>
+          <button *ngFor="let page of pages.slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))"
+                  (click)="goToPage(page)"
+                  [class]="page === currentPage ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium">
+            {{ page }}
+          </button>
+          <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Suivant
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal CRUD -->
+<div *ngIf="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slide-up">
+    <div class="sticky top-0 bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center">
+      <h3 class="text-xl font-bold">{{ isEditMode ? 'Modifier le produit' : 'Ajouter un produit' }}</h3>
+      <button (click)="closeModal()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="produitForm" (ngSubmit)="onSubmit()" class="p-6 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Nom *</label>
+          <input type="text" formControlName="nom"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                 [class.border-red-500]="produitForm.get('nom')?.invalid && produitForm.get('nom')?.touched">
+          <p *ngIf="produitForm.get('nom')?.invalid && produitForm.get('nom')?.touched" class="mt-1 text-xs text-red-600">
+            Le nom est requis
+          </p>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
+          <textarea formControlName="description" rows="3"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                    [class.border-red-500]="produitForm.get('description')?.invalid && produitForm.get('description')?.touched"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Prix (Ar) *</label>
+          <input type="number" formControlName="prix" min="0"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                 [class.border-red-500]="produitForm.get('prix')?.invalid && produitForm.get('prix')?.touched">
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Stock *</label>
+          <input type="number" formControlName="stock" min="0"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                 [class.border-red-500]="produitForm.get('stock')?.invalid && produitForm.get('stock')?.touched">
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Boutique *</label>
+          <select formControlName="boutique"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <option *ngFor="let boutique of mesBoutiques" [value]="boutique._id">{{ boutique.nom }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Catégorie *</label>
+          <select formControlName="categorie"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Images (URLs séparées par virgules)</label>
+          <input type="text" formControlName="images" placeholder="https://example.com/img1.jpg, https://..."
+                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-4 border-t">
+        <button type="button" (click)="closeModal()"
+                class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium">
+          Annuler
+        </button>
+        <button type="submit" [disabled]="produitForm.invalid || isLoading"
+                class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+          {{ isEditMode ? 'Modifier' : 'Ajouter' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Confirmation -->
+<div *ngIf="isConfirmModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-slide-up">
+    <div class="p-6">
+      <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-orange-100 rounded-full">
+        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 text-center mb-2">Confirmation</h3>
+      <p class="text-gray-600 text-center mb-6">{{ confirmMessage }}</p>
+      <div class="flex gap-3">
+        <button (click)="cancelConfirm()"
+                class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium">
+          Annuler
+        </button>
+        <button (click)="confirmActionExecute()"
+                class="flex-1 px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl hover:shadow-lg font-medium">
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

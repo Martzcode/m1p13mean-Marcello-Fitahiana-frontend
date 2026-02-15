@@ -53,6 +53,10 @@ export const routes: Routes = [
                         loadComponent: () => import('./features/admin/employes/employes-list.component').then(m => m.EmployesListComponent)
                     },
                     {
+                        path: 'centre',
+                        loadComponent: () => import('./features/admin/centre-config/centre-config.component').then(m => m.CentreConfigComponent)
+                    },
+                    {
                         path: '',
                         redirectTo: 'dashboard',
                         pathMatch: 'full'
@@ -66,7 +70,24 @@ export const routes: Routes = [
                 children: [
                     {
                         path: 'dashboard',
-                        loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent) // À créer
+                        loadComponent: () => import('./features/merchant/dashboard/merchant-dashboard.component').then(m => m.MerchantDashboardComponent)
+                    },
+                    {
+                        path: 'boutiques',
+                        loadComponent: () => import('./features/merchant/boutique/merchant-boutique.component').then(m => m.MerchantBoutiqueComponent)
+                    },
+                    {
+                        path: 'produits',
+                        loadComponent: () => import('./features/merchant/produits/merchant-produits.component').then(m => m.MerchantProduitsComponent)
+                    },
+                    {
+                        path: 'commandes',
+                        loadComponent: () => import('./features/merchant/commandes/merchant-commandes.component').then(m => m.MerchantCommandesComponent)
+                    },
+                    {
+                        path: '',
+                        redirectTo: 'dashboard',
+                        pathMatch: 'full'
                     }
                 ]
             }
