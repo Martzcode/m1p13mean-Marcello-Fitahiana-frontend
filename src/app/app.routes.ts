@@ -41,6 +41,18 @@ export const routes: Routes = [
                         loadComponent: () => import('./features/admin/loyers/loyers.component').then(m => m.LoyersComponent)
                     },
                     {
+                        path: 'paiements',
+                        loadComponent: () => import('./features/admin/paiements/paiements.component').then(m => m.PaiementsComponent)
+                    },
+                    {
+                        path: 'users',
+                        loadComponent: () => import('./features/admin/users/users-list.component').then(m => m.UsersListComponent)
+                    },
+                    {
+                        path: 'employes',
+                        loadComponent: () => import('./features/admin/employes/employes-list.component').then(m => m.EmployesListComponent)
+                    },
+                    {
                         path: '',
                         redirectTo: 'dashboard',
                         pathMatch: 'full'

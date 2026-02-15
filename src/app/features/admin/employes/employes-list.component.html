@@ -1,0 +1,515 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 p-6">
+  <!-- Header Section -->
+  <div class="max-w-7xl mx-auto mb-8">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          Gestion des Employés
+        </h1>
+        <p class="text-gray-600 mt-2">Gérez les employés et leurs salaires</p>
+      </div>
+      <button
+        (click)="openCreateModal()"
+        class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Ajouter un employé
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="max-w-7xl mx-auto mb-4">
+    <div *ngIf="successMessage" class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-sm animate-fade-in">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-green-800 font-medium">{{ successMessage }}</p>
+      </div>
+    </div>
+    <div *ngIf="errorMessage" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm animate-fade-in">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-red-800 font-medium">{{ errorMessage }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Card -->
+  <div class="max-w-7xl mx-auto mb-6">
+    <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl shadow-lg p-6 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-purple-100 text-sm font-medium">Masse Salariale Mensuelle</p>
+          <p class="text-3xl font-bold mt-1">{{ masseSalariale | number:'1.2-2' }} Ar</p>
+        </div>
+        <div class="bg-white bg-opacity-20 rounded-full p-4">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres Section -->
+  <div class="max-w-7xl mx-auto mb-6">
+    <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Recherche -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Recherche</label>
+          <div class="relative">
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="applyFilters()"
+              placeholder="Nom ou prénom..."
+              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200">
+            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Filtre Fonction -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Fonction</label>
+          <select
+            [(ngModel)]="selectedFonction"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200">
+            <option value="">Toutes les fonctions</option>
+            <option *ngFor="let fonction of fonctions" [value]="fonction">{{ fonction }}</option>
+          </select>
+        </div>
+
+        <!-- Filtre Statut -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Statut</label>
+          <select
+            [(ngModel)]="selectedStatus"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200">
+            <option value="">Tous les statuts</option>
+            <option value="actif">Actif</option>
+            <option value="inactif">Inactif</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div class="max-w-7xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+      <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+
+      <div *ngIf="!isLoading && paginatedEmployes.length === 0" class="text-center py-20">
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <p class="text-gray-500 text-lg font-medium">Aucun employé trouvé</p>
+      </div>
+
+      <div *ngIf="!isLoading && paginatedEmployes.length > 0" class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Nom</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Fonction</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Salaire</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date embauche</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Contact</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Statut</th>
+              <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr *ngFor="let employe of paginatedEmployes" class="hover:bg-gray-50 transition-colors duration-150">
+              <td class="px-6 py-4">
+                <div class="text-sm font-semibold text-gray-900">{{ employe.prenom }} {{ employe.nom }}</div>
+              </td>
+              <td class="px-6 py-4">
+                <span [class]="getFonctionBadgeClass(employe.fonction)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                  {{ employe.fonction }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm font-bold text-purple-600">{{ employe.salaire | number:'1.2-2' }} Ar</div>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500">
+                {{ employe.dateEmbauche | date:'dd/MM/yyyy' }}
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-xs text-gray-700">{{ employe.email || '-' }}</div>
+                <div class="text-xs text-gray-500">{{ employe.telephone }}</div>
+              </td>
+              <td class="px-6 py-4">
+                <span [class]="getStatusBadgeClass(employe.actif || false)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                  {{ employe.actif ? 'Actif' : 'Inactif' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-right text-sm font-medium">
+                <div class="flex justify-end gap-2">
+                  <button
+                    (click)="openPaiementModal(employe)"
+                    class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-150"
+                    title="Payer salaire">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                  </button>
+                  <button
+                    (click)="openEditModal(employe)"
+                    class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-150"
+                    title="Modifier">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button
+                    (click)="toggleEmployeStatus(employe)"
+                    [class]="employe.actif ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'"
+                    class="p-2 rounded-lg transition-colors duration-150"
+                    [title]="employe.actif ? 'Désactiver' : 'Activer'">
+                    <svg *ngIf="employe.actif" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                    </svg>
+                    <svg *ngIf="!employe.actif" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="!isLoading && filteredEmployes.length > 0" class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
+        <div class="text-sm text-gray-700">
+          Affichage de <span class="font-semibold">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> à
+          <span class="font-semibold">{{ Math.min(currentPage * itemsPerPage, filteredEmployes.length) }}</span> sur
+          <span class="font-semibold">{{ filteredEmployes.length }}</span> résultats
+        </div>
+        <div class="flex gap-2">
+          <button
+            (click)="previousPage()"
+            [disabled]="currentPage === 1"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150">
+            Précédent
+          </button>
+          <button
+            *ngFor="let page of pages.slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))"
+            (click)="goToPage(page)"
+            [class]="page === currentPage ? 'bg-purple-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-all duration-150">
+            {{ page }}
+          </button>
+          <button
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150">
+            Suivant
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Création/Édition Employé -->
+<div *ngIf="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slide-up">
+    <div class="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center">
+      <h3 class="text-xl font-bold">{{ isEditMode ? 'Modifier l\'employé' : 'Ajouter un employé' }}</h3>
+      <button (click)="closeModal()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-all duration-150">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="employeForm" (ngSubmit)="onSubmit()" class="p-6 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Prénom -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Prénom *</label>
+          <input
+            type="text"
+            formControlName="prenom"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+            [class.border-red-500]="employeForm.get('prenom')?.invalid && employeForm.get('prenom')?.touched">
+          <p *ngIf="employeForm.get('prenom')?.invalid && employeForm.get('prenom')?.touched" class="mt-1 text-xs text-red-600">
+            Le prénom est requis
+          </p>
+        </div>
+
+        <!-- Nom -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Nom *</label>
+          <input
+            type="text"
+            formControlName="nom"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+            [class.border-red-500]="employeForm.get('nom')?.invalid && employeForm.get('nom')?.touched">
+          <p *ngIf="employeForm.get('nom')?.invalid && employeForm.get('nom')?.touched" class="mt-1 text-xs text-red-600">
+            Le nom est requis
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Fonction -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Fonction *</label>
+          <select
+            formControlName="fonction"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200">
+            <option *ngFor="let fonction of fonctions" [value]="fonction">{{ fonction }}</option>
+          </select>
+        </div>
+
+        <!-- Salaire -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Salaire mensuel (Ar) *</label>
+          <input
+            type="number"
+            formControlName="salaire"
+            min="0"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+            [class.border-red-500]="employeForm.get('salaire')?.invalid && employeForm.get('salaire')?.touched">
+          <p *ngIf="employeForm.get('salaire')?.invalid && employeForm.get('salaire')?.touched" class="mt-1 text-xs text-red-600">
+            Salaire requis (minimum 0)
+          </p>
+        </div>
+      </div>
+
+      <!-- Date embauche -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Date d'embauche *</label>
+        <input
+          type="date"
+          formControlName="dateEmbauche"
+          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+          [class.border-red-500]="employeForm.get('dateEmbauche')?.invalid && employeForm.get('dateEmbauche')?.touched">
+        <p *ngIf="employeForm.get('dateEmbauche')?.invalid && employeForm.get('dateEmbauche')?.touched" class="mt-1 text-xs text-red-600">
+          Date d'embauche requise
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+          <input
+            type="email"
+            formControlName="email"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+            [class.border-red-500]="employeForm.get('email')?.invalid && employeForm.get('email')?.touched">
+          <p *ngIf="employeForm.get('email')?.invalid && employeForm.get('email')?.touched" class="mt-1 text-xs text-red-600">
+            Email invalide
+          </p>
+        </div>
+
+        <!-- Téléphone -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Téléphone *</label>
+          <input
+            type="tel"
+            formControlName="telephone"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+            [class.border-red-500]="employeForm.get('telephone')?.invalid && employeForm.get('telephone')?.touched">
+          <p *ngIf="employeForm.get('telephone')?.invalid && employeForm.get('telephone')?.touched" class="mt-1 text-xs text-red-600">
+            Téléphone requis
+          </p>
+        </div>
+      </div>
+
+      <!-- Boutons -->
+      <div class="flex justify-end gap-3 pt-4 border-t">
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-150 font-medium">
+          Annuler
+        </button>
+        <button
+          type="submit"
+          [disabled]="employeForm.invalid || isLoading"
+          class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-150 font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+          <span *ngIf="!isLoading">{{ isEditMode ? 'Modifier' : 'Ajouter' }}</span>
+          <span *ngIf="isLoading" class="flex items-center gap-2">
+            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Chargement...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Paiement Salaire -->
+<div *ngIf="isPaiementModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slide-up">
+    <div class="sticky top-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center">
+      <h3 class="text-xl font-bold">Paiement de salaire - {{ selectedEmploye?.prenom }} {{ selectedEmploye?.nom }}</h3>
+      <button (click)="closePaiementModal()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-all duration-150">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6">
+      <!-- Formulaire paiement -->
+      <form [formGroup]="paiementForm" (ngSubmit)="onPaiementSubmit()" class="space-y-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Montant -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Montant (Ar) *</label>
+            <input
+              type="number"
+              formControlName="montant"
+              min="0"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+              [class.border-red-500]="paiementForm.get('montant')?.invalid && paiementForm.get('montant')?.touched">
+          </div>
+
+          <!-- Méthode paiement -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Méthode de paiement *</label>
+            <select
+              formControlName="methodePaiement"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+              <option value="espèces">Espèces</option>
+              <option value="virement">Virement</option>
+              <option value="chèque">Chèque</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Mois -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Mois *</label>
+            <select
+              formControlName="mois"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+              <option value="1">Janvier</option>
+              <option value="2">Février</option>
+              <option value="3">Mars</option>
+              <option value="4">Avril</option>
+              <option value="5">Mai</option>
+              <option value="6">Juin</option>
+              <option value="7">Juillet</option>
+              <option value="8">Août</option>
+              <option value="9">Septembre</option>
+              <option value="10">Octobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Décembre</option>
+            </select>
+          </div>
+
+          <!-- Année -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Année *</label>
+            <input
+              type="number"
+              formControlName="annee"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+          </div>
+
+          <!-- Date paiement -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Date paiement</label>
+            <input
+              type="date"
+              formControlName="datePaiement"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+          </div>
+        </div>
+
+        <!-- Boutons -->
+        <div class="flex justify-end gap-3 pt-4 border-t">
+          <button
+            type="button"
+            (click)="closePaiementModal()"
+            class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-150 font-medium">
+            Annuler
+          </button>
+          <button
+            type="submit"
+            [disabled]="paiementForm.invalid || isLoading"
+            class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-150 font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+            Enregistrer le paiement
+          </button>
+        </div>
+      </form>
+
+      <!-- Historique paiements -->
+      <div *ngIf="employePaiements.length > 0" class="border-t pt-6">
+        <h4 class="text-lg font-bold text-gray-900 mb-4">Historique des paiements</h4>
+        <div class="space-y-2">
+          <div *ngFor="let paiement of employePaiements" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <p class="font-semibold text-gray-900">{{ getMoisNom(paiement.mois) }} {{ paiement.annee }}</p>
+              <p class="text-sm text-gray-600">{{ paiement.montant | number:'1.2-2' }} Ar - {{ paiement.datePaiement | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span [class]="getMethodePaiementBadge(paiement.methodePaiement)" class="px-3 py-1 text-xs font-semibold rounded-full">
+                {{ paiement.methodePaiement }}
+              </span>
+              <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                {{ paiement.statut }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="employePaiements.length === 0" class="border-t pt-6 text-center text-gray-500">
+        <p>Aucun paiement enregistré</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirmation -->
+<div *ngIf="isConfirmModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-slide-up">
+    <div class="p-6">
+      <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-orange-100 rounded-full">
+        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 text-center mb-2">Confirmation</h3>
+      <p class="text-gray-600 text-center mb-6">{{ confirmMessage }}</p>
+      <div class="flex gap-3">
+        <button
+          (click)="cancelConfirm()"
+          class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-150 font-medium">
+          Annuler
+        </button>
+        <button
+          (click)="confirmActionExecute()"
+          class="flex-1 px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl hover:shadow-lg transition-all duration-150 font-medium">
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

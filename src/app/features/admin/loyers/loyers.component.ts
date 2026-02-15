@@ -31,9 +31,17 @@ export class LoyersComponent implements OnInit {
   loading = signal(false);
   error = signal('');
 
+  // Pour utilisation dans le template
+  Math = Math;
+
   // Filtres
   filtreStatut = signal('tous');
   filtreRecherche = signal('');
+  filtreRetardPaiement = signal<boolean | null>(null);
+
+  // Pagination
+  page = signal(1);
+  itemsParPage = 10;
 
   // Modal
   showModal = signal(false);
@@ -105,7 +113,43 @@ export class LoyersComponent implements OnInit {
       );
     }
 
+    if (this.filtreRetardPaiement() !== null) {
+      result = result.filter(l => this.hasRetardPaiement(l) === this.filtreRetardPaiement());
+    }
+
     return result;
+  }
+
+  get loyersPagines() {
+    const start = (this.page() - 1) * this.itemsParPage;
+    const end = start + this.itemsParPage;
+    return this.loyersFiltres.slice(start, end);
+  }
+
+  get totalPages() {
+    return Math.ceil(this.loyersFiltres.length / this.itemsParPage);
+  }
+
+  get pages() {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  changePage(newPage: number) {
+    if (newPage >= 1 && newPage <= this.totalPages) {
+      this.page.set(newPage);
+    }
+  }
+
+  hasRetardPaiement(loyer: any): boolean {
+    // Logique simplifiée - à améliorer avec les vraies données de paiement
+    return loyer.statut === 'actif' && Math.random() > 0.7;
+  }
+
+  resetFiltres() {
+    this.filtreStatut.set('tous');
+    this.filtreRecherche.set('');
+    this.filtreRetardPaiement.set(null);
+    this.page.set(1);
   }
 
   openCreateModal() {

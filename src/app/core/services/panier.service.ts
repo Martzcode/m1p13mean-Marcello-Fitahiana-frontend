@@ -1,11 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-
-export interface ItemPanier {
-  produit: any;
-  quantite: number;
-  prixUnitaire: number;
-}
+import { ItemPanier } from '../models/panier.model';
 
 @Injectable({
   providedIn: 'root'
