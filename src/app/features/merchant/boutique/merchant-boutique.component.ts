@@ -85,12 +85,12 @@ export class MerchantBoutiqueComponent implements OnInit {
         stats.produitsActifs = produitsBoutique.filter((p: any) => p.actif).length;
         this.statsParBoutique.set(boutiqueId, stats);
       },
-      error: (err) => console.error('Erreur chargement produits:', err)
+      error: (err: any) => console.error('Erreur chargement produits:', err)
     });
 
     // Charger commandes de la boutique
-    this.commandeService.getCommandes().subscribe({
-      next: (response) => {
+    this.commandeService.getAllCommandes().subscribe({
+      next: (response: any) => {
         const allCommandes = response.data || response;
         const commandesBoutique = allCommandes.filter((c: any) =>
           c.boutique?._id === boutiqueId || c.boutique === boutiqueId
@@ -105,10 +105,10 @@ export class MerchantBoutiqueComponent implements OnInit {
         });
 
         stats.nbCommandes = commandesMois.length;
-        stats.chiffreAffaires = commandesMois.reduce((sum, c) => sum + (c.montantTotal || 0), 0);
+        stats.chiffreAffaires = commandesMois.reduce((sum: number, c: any) => sum + (c.montantTotal || 0), 0);
         this.statsParBoutique.set(boutiqueId, stats);
       },
-      error: (err) => console.error('Erreur chargement commandes:', err)
+      error: (err: any) => console.error('Erreur chargement commandes:', err)
     });
   }
 

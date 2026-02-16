@@ -1,0 +1,283 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex justify-center items-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+  </div>
+
+  <!-- Erreur -->
+  <div *ngIf="error && !loading" class="max-w-7xl mx-auto px-4 py-20">
+    <div class="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+      <svg class="w-16 h-16 mx-auto text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <h3 class="text-xl font-bold text-red-700 mb-2">{{ error }}</h3>
+      <button
+        (click)="retourCatalogue()"
+        class="mt-4 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
+      >
+        Retour au catalogue
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenu produit -->
+  <div *ngIf="produit && !loading && !error" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 flex items-center gap-2 text-sm text-slate-600">
+      <a routerLink="/" class="hover:text-blue-600 transition-colors">Accueil</a>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+      <a (click)="retourCatalogue()" class="hover:text-blue-600 transition-colors cursor-pointer">Produits</a>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+      <span *ngIf="produit.categorie" class="hover:text-blue-600 transition-colors">{{ produit.categorie }}</span>
+      <svg *ngIf="produit.categorie" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+      <span class="font-semibold text-slate-800">{{ produit.nom }}</span>
+    </nav>
+
+    <!-- Message succès -->
+    <div
+      *ngIf="ajoutReussi"
+      class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-between animate-fadeIn"
+    >
+      <div class="flex items-center gap-3">
+        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <span class="text-green-700 font-medium">Produit ajouté au panier avec succès !</span>
+      </div>
+      <button
+        (click)="allerAuPanier()"
+        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+      >
+        Voir mon panier
+      </button>
+    </div>
+
+    <!-- Layout 2 colonnes -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-12">
+      <!-- Colonne gauche: Images -->
+      <div class="space-y-4">
+        <!-- Image principale -->
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden aspect-square">
+          <img
+            [src]="getImageActive()"
+            [alt]="produit.nom"
+            class="w-full h-full object-cover"
+          />
+        </div>
+
+        <!-- Miniatures -->
+        <div *ngIf="produit.images && produit.images.length > 1" class="grid grid-cols-4 gap-3">
+          <button
+            *ngFor="let image of produit.images; let i = index"
+            (click)="changerImage(i)"
+            [class.ring-4]="imageActive === i"
+            [class.ring-blue-500]="imageActive === i"
+            class="bg-white rounded-xl shadow border border-slate-200 overflow-hidden aspect-square hover:ring-2 hover:ring-blue-300 transition-all"
+          >
+            <img
+              [src]="image"
+              [alt]="produit.nom + ' - Image ' + (i + 1)"
+              class="w-full h-full object-cover"
+            />
+          </button>
+        </div>
+      </div>
+
+      <!-- Colonne droite: Informations -->
+      <div class="space-y-6">
+        <!-- Catégorie -->
+        <div>
+          <span class="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-sm font-semibold">
+            {{ produit.categorie || 'Non catégorisé' }}
+          </span>
+        </div>
+
+        <!-- Nom -->
+        <h1 class="text-4xl font-bold text-slate-800">
+          {{ produit.nom }}
+        </h1>
+
+        <!-- Prix -->
+        <div class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+          {{ formatPrix(produit.prix) }}
+        </div>
+
+        <!-- Stock -->
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          <div>
+            <span class="text-slate-600">Stock disponible: </span>
+            <span
+              [class.text-green-600]="produit.stock > 10"
+              [class.text-orange-600]="produit.stock > 0 && produit.stock <= 10"
+              [class.text-red-600]="produit.stock === 0"
+              class="font-bold"
+            >
+              {{ produit.stock }}
+            </span>
+            <span
+              *ngIf="produit.stock === 0"
+              class="ml-2 px-3 py-1 bg-red-500 text-white rounded-full text-xs font-bold"
+            >
+              Rupture de stock
+            </span>
+            <span
+              *ngIf="produit.stock > 0 && produit.stock <= 10"
+              class="ml-2 px-3 py-1 bg-orange-500 text-white rounded-full text-xs font-bold"
+            >
+              Stock limité
+            </span>
+          </div>
+        </div>
+
+        <!-- Boutique -->
+        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+              <div>
+                <div class="text-xs text-slate-500 mb-1">Vendu par</div>
+                <div class="font-semibold text-slate-800">{{ produit.boutique?.nom || 'Boutique inconnue' }}</div>
+              </div>
+            </div>
+            <button
+              (click)="voirBoutique()"
+              class="px-4 py-2 bg-white text-slate-700 rounded-lg border border-slate-300 hover:bg-slate-100 transition-colors text-sm font-medium"
+            >
+              Voir la boutique
+            </button>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+          <h3 class="text-lg font-bold text-slate-800 mb-3">Description</h3>
+          <p class="text-slate-600 leading-relaxed whitespace-pre-line">
+            {{ produit.description }}
+          </p>
+        </div>
+
+        <!-- Section ajout au panier -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-lg">
+          <h3 class="text-lg font-bold text-slate-800 mb-4">Commander ce produit</h3>
+
+          <!-- Sélecteur quantité -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-slate-700 mb-3">Quantité</label>
+            <div class="flex items-center gap-4">
+              <div class="flex items-center border-2 border-slate-300 rounded-xl overflow-hidden">
+                <button
+                  (click)="decrementerQuantite()"
+                  [disabled]="quantite <= 1"
+                  class="px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                  </svg>
+                </button>
+                <input
+                  type="number"
+                  [(ngModel)]="quantite"
+                  [min]="1"
+                  [max]="produit.stock"
+                  class="w-20 px-4 py-3 text-center font-bold text-lg border-x-2 border-slate-300 focus:outline-none"
+                />
+                <button
+                  (click)="incrementerQuantite()"
+                  [disabled]="quantite >= produit.stock"
+                  class="px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="text-sm text-slate-600">
+                Maximum: <span class="font-semibold">{{ produit.stock }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total -->
+          <div class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-600 font-medium">Total:</span>
+              <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                {{ formatPrix(produit.prix * quantite) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Bouton ajouter au panier -->
+          <button
+            (click)="ajouterAuPanier()"
+            [disabled]="produit.stock === 0"
+            class="w-full py-4 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-blue-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-3"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <span *ngIf="produit.stock > 0">Ajouter au panier</span>
+            <span *ngIf="produit.stock === 0">Produit indisponible</span>
+          </button>
+
+          <p class="mt-3 text-xs text-slate-500 text-center">
+            Livraison disponible selon la boutique
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Produits similaires -->
+    <div *ngIf="produitsSimilaires.length > 0" class="mt-16">
+      <h2 class="text-2xl font-bold text-slate-800 mb-6">Produits similaires</h2>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+        <div
+          *ngFor="let similaire of produitsSimilaires"
+          (click)="voirProduit(similaire._id)"
+          class="group bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer"
+        >
+          <!-- Image -->
+          <div class="relative h-40 bg-gradient-to-br from-slate-100 to-slate-200">
+            <img
+              [src]="similaire.images && similaire.images.length > 0 ? similaire.images[0] : 'https://via.placeholder.com/200x200?text=Pas+d\'image'"
+              [alt]="similaire.nom"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            />
+            <div
+              *ngIf="similaire.stock === 0"
+              class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold"
+            >
+              Rupture
+            </div>
+          </div>
+
+          <!-- Contenu -->
+          <div class="p-3">
+            <h3 class="text-sm font-bold text-slate-800 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+              {{ similaire.nom }}
+            </h3>
+            <div class="text-lg font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+              {{ formatPrix(similaire.prix) }}
+            </div>
+            <div class="mt-2 text-xs text-slate-500">
+              Stock: <span class="font-semibold">{{ similaire.stock }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

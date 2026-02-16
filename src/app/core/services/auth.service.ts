@@ -144,5 +144,9 @@ export class AuthService {
   isMerchant(): boolean {
     return this.hasRole(['commerçant']);
   }
+
+  isClient(): boolean {
+    return this.hasRole(['client']);
+  }
 }
 

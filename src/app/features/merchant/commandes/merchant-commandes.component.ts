@@ -86,8 +86,8 @@ export class MerchantCommandesComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.commandeService.getCommandes().subscribe({
-      next: (response) => {
+    this.commandeService.getAllCommandes().subscribe({
+      next: (response: any) => {
         const allCommandes = response.data || response;
         // Filtrer les commandes des boutiques du commerçant
         this.commandes = allCommandes.filter((c: any) => {
@@ -105,7 +105,7 @@ export class MerchantCommandesComponent implements OnInit {
         this.applyFilters();
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.errorMessage = 'Erreur lors du chargement des commandes';
         console.error(err);
         this.isLoading = false;
@@ -162,13 +162,13 @@ export class MerchantCommandesComponent implements OnInit {
     this.confirmMessage = `Changer le statut de "${commande.numero}" vers "${this.getStatutLabel(newStatut)}" ?`;
     this.confirmAction = () => {
       if (!commande._id) return;
-      this.commandeService.updateCommande(commande._id, { statut: newStatut }).subscribe({
+      this.commandeService.changerStatut(commande._id, newStatut).subscribe({
         next: () => {
           this.successMessage = 'Statut mis à jour avec succès';
           this.loadCommandes();
           setTimeout(() => this.successMessage = '', 3000);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.errorMessage = 'Erreur lors de la mise à jour du statut';
           console.error(err);
         }

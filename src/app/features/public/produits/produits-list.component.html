@@ -1,0 +1,387 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+  <!-- Header -->
+  <div class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+            Catalogue Produits
+          </h1>
+          <p class="mt-1 text-sm text-slate-600">
+            {{ produitsAffiches.length }} produit(s) disponible(s)
+          </p>
+        </div>
+
+        <!-- Barre de recherche -->
+        <div class="flex items-center gap-3">
+          <div class="relative flex-1 md:w-80">
+            <input
+              type="text"
+              [(ngModel)]="recherche"
+              (input)="page = 1; appliquerFiltres()"
+              placeholder="Rechercher un produit..."
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
+            />
+            <svg class="absolute left-3 top-3 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+
+          <!-- Toggle Grid/Liste -->
+          <button
+            (click)="toggleAffichage()"
+            class="p-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 transition-colors shadow-sm bg-white"
+            [title]="affichageGrid ? 'Vue liste' : 'Vue grille'"
+          >
+            <svg *ngIf="affichageGrid" class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <svg *ngIf="!affichageGrid" class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Sidebar Filtres -->
+      <aside class="lg:w-72 flex-shrink-0">
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sticky top-24">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-slate-800">Filtres</h2>
+            <button
+              (click)="resetFiltres()"
+              class="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+            >
+              Réinitialiser
+            </button>
+          </div>
+
+          <!-- Filtre Boutique -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Boutique</label>
+            <select
+              [(ngModel)]="boutiqueSelectionnee"
+              (change)="page = 1; appliquerFiltres()"
+              class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            >
+              <option value="">Toutes les boutiques</option>
+              <option *ngFor="let boutique of boutiques" [value]="boutique._id">
+                {{ boutique.nom }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Filtre Catégories -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-slate-700 mb-3">Catégories</label>
+            <div class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+              <label
+                *ngFor="let categorie of categories"
+                class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="categoriesSelectionnees.includes(categorie)"
+                  (change)="toggleCategorie(categorie)"
+                  class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-2 focus:ring-blue-500"
+                />
+                <span class="text-sm text-slate-700">{{ categorie }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Filtre Prix -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Prix (Ar)</label>
+            <div class="flex gap-2">
+              <input
+                type="number"
+                [(ngModel)]="prixMin"
+                (change)="page = 1; appliquerFiltres()"
+                placeholder="Min"
+                class="w-1/2 px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 text-sm"
+              />
+              <input
+                type="number"
+                [(ngModel)]="prixMax"
+                (change)="page = 1; appliquerFiltres()"
+                placeholder="Max"
+                class="w-1/2 px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 text-sm"
+              />
+            </div>
+          </div>
+
+          <!-- Filtre Stock -->
+          <div class="mb-6">
+            <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors">
+              <input
+                type="checkbox"
+                [(ngModel)]="enStockUniquement"
+                (change)="page = 1; appliquerFiltres()"
+                class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-2 focus:ring-blue-500"
+              />
+              <span class="text-sm font-medium text-slate-700">En stock uniquement</span>
+            </label>
+          </div>
+
+          <!-- Tri -->
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Trier par</label>
+            <select
+              [(ngModel)]="triActuel"
+              (change)="appliquerFiltres()"
+              class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            >
+              <option value="recent">Plus récent</option>
+              <option value="alpha">Alphabétique</option>
+              <option value="prix-asc">Prix croissant</option>
+              <option value="prix-desc">Prix décroissant</option>
+            </select>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Contenu principal -->
+      <main class="flex-1">
+        <!-- Loading -->
+        <div *ngIf="loading" class="flex justify-center items-center py-20">
+          <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+        </div>
+
+        <!-- Erreur -->
+        <div *ngIf="error" class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <p class="text-red-700">{{ error }}</p>
+        </div>
+
+        <!-- Aucun produit -->
+        <div *ngIf="!loading && !error && produitsAffiches.length === 0" class="bg-white rounded-2xl shadow-lg border border-slate-200 p-12 text-center">
+          <svg class="w-20 h-20 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+          </svg>
+          <h3 class="text-xl font-bold text-slate-700 mb-2">Aucun produit trouvé</h3>
+          <p class="text-slate-600 mb-4">Essayez de modifier vos filtres</p>
+          <button
+            (click)="resetFiltres()"
+            class="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-lg shadow-blue-500/30"
+          >
+            Réinitialiser les filtres
+          </button>
+        </div>
+
+        <!-- Grid View -->
+        <div
+          *ngIf="!loading && !error && produitsAffiches.length > 0 && affichageGrid"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <div
+            *ngFor="let produit of produitsAffiches"
+            class="group bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-2xl hover:scale-105 transition-all duration-300"
+          >
+            <!-- Image -->
+            <div class="relative h-56 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
+              <img
+                [src]="produit.images && produit.images.length > 0 ? produit.images[0] : 'https://via.placeholder.com/400x300?text=Pas+d\'image'"
+                [alt]="produit.nom"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              />
+              <div
+                *ngIf="produit.stock === 0"
+                class="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg"
+              >
+                Rupture stock
+              </div>
+              <div
+                *ngIf="produit.stock > 0 && produit.stock < 10"
+                class="absolute top-3 right-3 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg"
+              >
+                Stock limité
+              </div>
+            </div>
+
+            <!-- Contenu -->
+            <div class="p-5">
+              <div class="mb-3">
+                <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-semibold">
+                  {{ produit.categorie || 'Non catégorisé' }}
+                </span>
+              </div>
+
+              <h3 class="text-lg font-bold text-slate-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                {{ produit.nom }}
+              </h3>
+
+              <p class="text-sm text-slate-600 mb-3 line-clamp-2">
+                {{ produit.description }}
+              </p>
+
+              <div class="flex items-center gap-2 mb-4">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span class="text-sm text-slate-600">{{ produit.boutique?.nom || 'Boutique inconnue' }}</span>
+              </div>
+
+              <div class="flex items-center justify-between mb-4">
+                <div class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                  {{ formatPrix(produit.prix) }}
+                </div>
+                <div class="text-sm text-slate-500">
+                  Stock: <span class="font-semibold">{{ produit.stock }}</span>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex gap-2">
+                <button
+                  (click)="ajouterAuPanier(produit)"
+                  [disabled]="produit.stock === 0"
+                  class="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-blue-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+                >
+                  <span *ngIf="produit.stock > 0">Ajouter au panier</span>
+                  <span *ngIf="produit.stock === 0">Indisponible</span>
+                </button>
+                <button
+                  (click)="voirDetails(produit)"
+                  class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-colors"
+                  title="Voir détails"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- List View -->
+        <div
+          *ngIf="!loading && !error && produitsAffiches.length > 0 && !affichageGrid"
+          class="space-y-4"
+        >
+          <div
+            *ngFor="let produit of produitsAffiches"
+            class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-2xl transition-all duration-300"
+          >
+            <div class="flex flex-col sm:flex-row">
+              <!-- Image -->
+              <div class="sm:w-48 h-48 bg-gradient-to-br from-slate-100 to-slate-200 flex-shrink-0">
+                <img
+                  [src]="produit.images && produit.images.length > 0 ? produit.images[0] : 'https://via.placeholder.com/300x200?text=Pas+d\'image'"
+                  [alt]="produit.nom"
+                  class="w-full h-full object-cover"
+                />
+              </div>
+
+              <!-- Contenu -->
+              <div class="flex-1 p-6">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div class="flex-1">
+                    <div class="mb-2">
+                      <span class="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-semibold">
+                        {{ produit.categorie || 'Non catégorisé' }}
+                      </span>
+                      <span
+                        *ngIf="produit.stock === 0"
+                        class="ml-2 inline-block px-3 py-1 bg-red-500 text-white rounded-lg text-xs font-bold"
+                      >
+                        Rupture stock
+                      </span>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">
+                      {{ produit.nom }}
+                    </h3>
+
+                    <p class="text-sm text-slate-600 mb-3 line-clamp-2">
+                      {{ produit.description }}
+                    </p>
+
+                    <div class="flex items-center gap-2 mb-3">
+                      <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                      </svg>
+                      <span class="text-sm text-slate-600">{{ produit.boutique?.nom || 'Boutique inconnue' }}</span>
+                    </div>
+
+                    <div class="text-sm text-slate-500">
+                      Stock: <span class="font-semibold">{{ produit.stock }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-col items-end gap-3">
+                    <div class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                      {{ formatPrix(produit.prix) }}
+                    </div>
+
+                    <div class="flex gap-2">
+                      <button
+                        (click)="ajouterAuPanier(produit)"
+                        [disabled]="produit.stock === 0"
+                        class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-blue-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Ajouter au panier
+                      </button>
+                      <button
+                        (click)="voirDetails(produit)"
+                        class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-colors"
+                      >
+                        Détails
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="!loading && !error && produitsAffiches.length > 0" class="mt-8 flex justify-center">
+          <div class="flex items-center gap-2">
+            <button
+              (click)="changerPage(page - 1)"
+              [disabled]="page === 1"
+              class="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+            </button>
+
+            <div class="flex items-center gap-1">
+              <button
+                *ngFor="let p of [].constructor(totalPages); let i = index"
+                (click)="changerPage(i + 1)"
+                [class.bg-gradient-to-r]="page === i + 1"
+                [class.from-blue-600]="page === i + 1"
+                [class.to-violet-600]="page === i + 1"
+                [class.text-white]="page === i + 1"
+                [class.shadow-lg]="page === i + 1"
+                class="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 transition-all font-medium"
+              >
+                {{ i + 1 }}
+              </button>
+            </div>
+
+            <button
+              (click)="changerPage(page + 1)"
+              [disabled]="page === totalPages"
+              class="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+

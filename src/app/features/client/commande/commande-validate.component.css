@@ -1,0 +1,128 @@
+/* Styles spécifiques pour la page de validation de commande */
+
+/* Animation de chargement */
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.loading-pulse {
+  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Animation d'apparition pour le message de succès */
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.success-message {
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* Hover effects pour les options de paiement */
+input[type="radio"]:checked + div {
+  border-color: currentColor;
+}
+
+/* Effet de focus amélioré pour textarea */
+textarea:focus {
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Style pour les badges de statut */
+.badge-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+/* Responsive images dans le récapitulatif */
+.product-image {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+/* Animation du bouton de validation */
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Effet de glissement pour les cartes */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+}
+
+/* Style pour le numéro de commande */
+.order-number {
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Animation du spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Amélioration visuelle des bordures dégradées */
+.gradient-border {
+  position: relative;
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #667eea, #764ba2) border-box;
+  border: 2px solid transparent;
+}
+
+/* Effet de focus pour les inputs radio */
+input[type="radio"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Style pour les messages d'alerte */
+.alert {
+  backdrop-filter: blur(10px);
+}
+
+/* Transition smooth pour tous les éléments interactifs */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Désactiver les transitions pour les éléments en mouvement */
+.no-transition {
+  transition: none !important;
+}
+
+/* Media queries pour responsive */
+@media (max-width: 640px) {
+  .product-image {
+    width: 60px;
+    height: 60px;
+  }
+}
+

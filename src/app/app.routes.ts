@@ -19,6 +19,49 @@ export const routes: Routes = [
                 loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent)
             },
 
+            // Public routes
+            {
+                path: 'produits',
+                loadComponent: () => import('./features/public/produits/produits-list.component').then(m => m.ProduitsListComponent)
+            },
+            {
+                path: 'produits/:id',
+                loadComponent: () => import('./features/public/produits/produit-detail.component').then(m => m.ProduitDetailComponent)
+            },
+            {
+                path: 'panier',
+                loadComponent: () => import('./features/client/panier/panier.component').then(m => m.PanierComponent)
+            },
+
+            // Client routes
+            {
+                path: 'client',
+                canActivate: [authGuard],
+                children: [
+                    {
+                        path: 'catalogue',
+                        loadComponent: () => import('./features/client/catalogue/catalogue.component').then(m => m.CatalogueComponent)
+                    },
+                    {
+                        path: 'panier',
+                        loadComponent: () => import('./features/client/panier/panier.component').then(m => m.PanierComponent)
+                    },
+                    {
+                        path: 'commande/valider',
+                        loadComponent: () => import('./features/client/commande/commande-validate.component').then(m => m.CommandeValidateComponent)
+                    },
+                    {
+                        path: 'commandes',
+                        loadComponent: () => import('./features/client/commandes/mes-commandes.component').then(m => m.MesCommandesComponent)
+                    },
+                    {
+                        path: '',
+                        redirectTo: 'catalogue',
+                        pathMatch: 'full'
+                    }
+                ]
+            },
+
             // Admin routes
             {
                 path: 'admin',

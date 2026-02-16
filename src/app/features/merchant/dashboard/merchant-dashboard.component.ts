@@ -65,7 +65,7 @@ export class MerchantDashboardComponent implements OnInit {
 
   loadMesBoutiques(): void {
     this.boutiqueService.getAll().subscribe({
-      next: (response) => {
+      next: (response: any) => {
         const allBoutiques = response.data || response;
         // Filtrer les boutiques du commerçant connecté
         if (this.currentUser && this.currentUser.boutiques) {
@@ -74,7 +74,7 @@ export class MerchantDashboardComponent implements OnInit {
           );
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Erreur chargement boutiques:', err);
       }
     });
@@ -83,7 +83,7 @@ export class MerchantDashboardComponent implements OnInit {
   loadStats(): void {
     // Total produits
     this.produitService.getProduits().subscribe({
-      next: (response) => {
+      next: (response: any) => {
         const allProduits = response.data || response;
         // Filtrer les produits des boutiques du commerçant
         const mesProduits = allProduits.filter((p: any) =>
@@ -94,14 +94,14 @@ export class MerchantDashboardComponent implements OnInit {
         // Produits en rupture de stock
         this.produitsRuptureStock = mesProduits.filter((p: any) => p.stock === 0).length;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Erreur chargement produits:', err);
       }
     });
 
     // Total commandes et chiffre d'affaires du mois
-    this.commandeService.getCommandes().subscribe({
-      next: (response) => {
+    this.commandeService.getAllCommandes().subscribe({
+      next: (response: any) => {
         const allCommandes = response.data || response;
         // Filtrer les commandes des boutiques du commerçant
         const mesCommandes = allCommandes.filter((c: any) =>
@@ -117,17 +117,17 @@ export class MerchantDashboardComponent implements OnInit {
         });
 
         this.totalCommandes = moisEnCours.length;
-        this.chiffreAffaires = moisEnCours.reduce((sum, c) => sum + (c.montantTotal || 0), 0);
+        this.chiffreAffaires = moisEnCours.reduce((sum: number, c: any) => sum + (c.montantTotal || 0), 0);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Erreur chargement commandes:', err);
       }
     });
   }
 
   loadDernieresCommandes(): void {
-    this.commandeService.getCommandes().subscribe({
-      next: (response) => {
+    this.commandeService.getAllCommandes().subscribe({
+      next: (response: any) => {
         const allCommandes = response.data || response;
         // Filtrer et trier les commandes
         const mesCommandes = allCommandes
@@ -141,7 +141,7 @@ export class MerchantDashboardComponent implements OnInit {
 
         this.dernieresCommandes = mesCommandes;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Erreur chargement dernières commandes:', err);
       }
     });

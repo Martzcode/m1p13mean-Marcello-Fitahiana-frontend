@@ -330,7 +330,7 @@
           multiple
           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 min-h-[120px]">
           <option *ngFor="let boutique of boutiques" [value]="boutique._id">
-            {{ boutique.nom }}{{ boutique.zone ? ' (' + boutique.zone.nom + ')' : '' }}
+            {{ getBoutiqueLabel(boutique) }}
           </option>
         </select>
         <p class="mt-1 text-xs text-gray-500">Maintenez Ctrl (ou Cmd) pour sélectionner plusieurs boutiques</p>

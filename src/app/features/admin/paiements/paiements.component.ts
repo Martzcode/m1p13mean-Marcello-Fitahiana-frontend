@@ -96,15 +96,15 @@ export class PaiementsComponent implements OnInit {
     let result = this.paiements();
 
     if (this.filtreBoutique() !== 'tous') {
-      result = result.filter(p => p.loyer?.boutique?._id === this.filtreBoutique());
+      result = result.filter((p: any) => (p.loyer?.boutique as any)?._id === this.filtreBoutique());
     }
 
     if (this.filtreModePaiement() !== 'tous') {
-      result = result.filter(p => p.modePaiement === this.filtreModePaiement());
+      result = result.filter((p: any) => p.modePaiement === this.filtreModePaiement());
     }
 
     if (this.filtreMois()) {
-      result = result.filter(p => {
+      result = result.filter((p: any) => {
         const date = new Date(p.datePaiement);
         return date.getMonth() + 1 === parseInt(this.filtreMois());
       });
@@ -135,15 +135,17 @@ export class PaiementsComponent implements OnInit {
   }
 
   get totalPercu() {
-    return this.paiementsFiltres().reduce((sum, p) => sum + p.montant, 0);
+    return this.paiementsFiltres.reduce((sum: number, p: any) => sum + p.montant, 0);
   }
 
   get boutiquesUniques() {
     const boutiques = new Map();
-    this.paiements().forEach(p => {
+    this.paiements().forEach((p: any) => {
       if (p.loyer?.boutique) {
-        const b = p.loyer.boutique;
-        boutiques.set(b._id, b);
+        const b: any = p.loyer.boutique;
+        if (b._id) {
+          boutiques.set(b._id, b);
+        }
       }
     });
     return Array.from(boutiques.values());
@@ -221,12 +223,12 @@ export class PaiementsComponent implements OnInit {
   }
 
   exportCSV() {
-    const data = this.paiementsFiltres();
+    const data = this.paiementsFiltres;
     const headers = ['Date', 'Boutique', 'Commerçant', 'Montant', 'Mode Paiement', 'Référence'];
 
     let csv = headers.join(',') + '\n';
 
-    data.forEach(p => {
+    data.forEach((p: any) => {
       const row = [
         this.formatDate(p.datePaiement),
         `"${p.loyer?.boutique?.numero} - ${p.loyer?.boutique?.nom}"`,

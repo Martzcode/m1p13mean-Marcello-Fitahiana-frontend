@@ -55,6 +55,19 @@
             </a>
           }
 
+          <!-- Client Menu -->
+          @if (authService.isClient()) {
+            <a routerLink="/client/catalogue" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Catalogue
+            </a>
+            <a routerLink="/client/panier" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Panier
+            </a>
+            <a routerLink="/client/commandes" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Mes Commandes
+            </a>
+          }
+
           <!-- User Menu -->
           <div class="relative">
             <button (click)="toggleUserMenu()" class="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
@@ -123,6 +136,11 @@
           <a routerLink="/admin/users" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Utilisateurs</a>
           <a routerLink="/admin/employes" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Employés</a>
           <a routerLink="/admin/centre" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Centre</a>
+        }
+        @if (authService.isClient()) {
+          <a routerLink="/client/catalogue" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Catalogue</a>
+          <a routerLink="/client/panier" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Panier</a>
+          <a routerLink="/client/commandes" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Mes Commandes</a>
         }
         <div class="border-t border-gray-200 pt-4 pb-3">
           <div class="px-3 mb-3">

@@ -295,6 +295,14 @@ export class UsersListComponent implements OnInit {
       .join(', ');
   }
 
+  getBoutiqueLabel(boutique: any): string {
+    let label = boutique.nom;
+    if (boutique.zone && typeof boutique.zone === 'object' && boutique.zone.nom) {
+      label += ` (${boutique.zone.nom})`;
+    }
+    return label;
+  }
+
   onRoleChange(): void {
     const role = this.userForm.get('role')?.value;
     if (role !== 'commerçant') {
