@@ -34,9 +34,6 @@
             <a routerLink="/admin/users" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
               Utilisateurs
             </a>
-            <a routerLink="/admin/employes" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
-              Employés
-            </a>
             <a routerLink="/admin/centre" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
               Centre
             </a>
@@ -49,6 +46,12 @@
             </a>
             <a routerLink="/merchant/boutiques" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
               Mes Boutiques
+            </a>
+            <a routerLink="/merchant/produits" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Produits
+            </a>
+            <a routerLink="/merchant/commandes" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Commandes
             </a>
             <a routerLink="/merchant/loyers" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
               Mes Loyers
@@ -85,9 +88,6 @@
                 <div class="py-1">
                   <a routerLink="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Mon profil
-                  </a>
-                  <a routerLink="/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    Paramètres
                   </a>
                   <button (click)="logout()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Déconnexion
@@ -134,8 +134,14 @@
           <a routerLink="/admin/loyers" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Loyers</a>
           <a routerLink="/admin/paiements" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Paiements</a>
           <a routerLink="/admin/users" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Utilisateurs</a>
-          <a routerLink="/admin/employes" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Employés</a>
           <a routerLink="/admin/centre" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Centre</a>
+        }
+        @if (authService.isMerchant()) {
+          <a routerLink="/merchant/dashboard" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Tableau de bord</a>
+          <a routerLink="/merchant/boutiques" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Mes Boutiques</a>
+          <a routerLink="/merchant/produits" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Produits</a>
+          <a routerLink="/merchant/commandes" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Commandes</a>
+          <a routerLink="/merchant/loyers" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Mes Loyers</a>
         }
         @if (authService.isClient()) {
           <a routerLink="/client/catalogue" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Catalogue</a>

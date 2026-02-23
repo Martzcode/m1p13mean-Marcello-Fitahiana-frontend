@@ -34,9 +34,5 @@ export class UserService {
   getCommercants(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/commercants`);
   }
-
-  assignBoutique(userId: string, boutiqueId: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/${userId}/boutiques/${boutiqueId}`, {});
-  }
 }
 

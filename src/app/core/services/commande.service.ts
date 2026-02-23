@@ -51,59 +51,22 @@ export class CommandeService {
     return this.http.get<any>(url, { params: filters });
   }
 
-  /**
-   * Change le statut d'une commande (commerçant/admin)
-   * @param id - ID de la commande
-   * @param statut - Nouveau statut (en_attente, confirmee, en_preparation, prete, livree, annulee)
-   */
   changerStatut(id: string, statut: string): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/${id}/statut`, { statut });
   }
 
-  /**
-   * Marque une commande comme payée (commerçant/admin)
-   * @param id - ID de la commande
-   */
   marquerPayee(id: string): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/${id}/paiement`, {});
   }
 
-  /**
-   * Annule une commande (client - avant certains statuts)
-   * @param id - ID de la commande
-   */
-  annulerCommande(id: string): Observable<any> {
-    return this.changerStatut(id, 'annulee');
+  mettreEnCours(id: string): Observable<any> {
+    return this.changerStatut(id, 'en_cours');
   }
 
-  /**
-   * Confirme une commande (commerçant)
-   * @param id - ID de la commande
-   */
-  confirmerCommande(id: string): Observable<any> {
-    return this.changerStatut(id, 'confirmee');
+  terminerCommande(id: string): Observable<any> {
+    return this.changerStatut(id, 'terminee');
   }
 
-  /**
-   * Passe une commande en préparation (commerçant)
-   * @param id - ID de la commande
-   */
-  mettreEnPreparation(id: string): Observable<any> {
-    return this.changerStatut(id, 'en_preparation');
-  }
-
-  /**
-   * Marque une commande comme prête (commerçant)
-   * @param id - ID de la commande
-   */
-  marquerPrete(id: string): Observable<any> {
-    return this.changerStatut(id, 'prete');
-  }
-
-  /**
-   * Marque une commande comme livrée (commerçant)
-   * @param id - ID de la commande
-   */
   marquerLivree(id: string): Observable<any> {
     return this.changerStatut(id, 'livree');
   }

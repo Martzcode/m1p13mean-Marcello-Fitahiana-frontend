@@ -67,6 +67,7 @@
           <img
             [src]="getImageActive()"
             [alt]="produit.nom"
+            (error)="onImageError($event)"
             class="w-full h-full object-cover"
           />
         </div>
@@ -251,8 +252,9 @@
           <!-- Image -->
           <div class="relative h-40 bg-gradient-to-br from-slate-100 to-slate-200">
             <img
-              [src]="similaire.images && similaire.images.length > 0 ? similaire.images[0] : 'https://via.placeholder.com/200x200?text=Pas+d\'image'"
+              [src]="similaire.images && similaire.images.length > 0 ? similaire.images[0] : defaultImage"
               [alt]="similaire.nom"
+              (error)="onImageError($event)"
               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
             />
             <div

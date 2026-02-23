@@ -115,3 +115,13 @@ export const DAYS_OF_WEEK = [
   'dimanche'
 ];
 
+// Image placeholder par défaut (SVG inline encodé en data URI)
+export const DEFAULT_PRODUCT_IMAGE = `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#f3f4f6"/>
+  <rect x="120" y="100" width="160" height="120" rx="8" fill="#d1d5db"/>
+  <circle cx="165" cy="140" r="15" fill="#9ca3af"/>
+  <polygon points="140,220 200,160 260,220" fill="#9ca3af"/>
+  <polygon points="200,220 240,180 280,220" fill="#b0b5bc"/>
+  <text x="200" y="280" text-anchor="middle" fill="#6b7280" font-family="system-ui,sans-serif" font-size="16" font-weight="500">Pas d'image</text>
+</svg>`)}`;
+

@@ -60,6 +60,7 @@
                     *ngIf="item.produit.images && item.produit.images.length > 0"
                     [src]="item.produit.images[0]"
                     [alt]="item.produit.nom"
+                    (error)="onImageError($event)"
                     class="w-full h-full object-cover">
                   <div *ngIf="!item.produit.images || item.produit.images.length === 0" class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                     <svg class="w-10 h-10 text-gray-400" fill="currentColor" viewBox="0 0 20 20">

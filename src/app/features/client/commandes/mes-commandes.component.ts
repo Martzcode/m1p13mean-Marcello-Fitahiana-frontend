@@ -38,12 +38,10 @@ export class MesCommandesComponent implements OnInit {
   // Listes pour filtres
   boutiquesUniques: string[] = [];
   statutsDisponibles = [
-    { value: 'en_attente', label: 'En attente', color: 'bg-yellow-100 text-yellow-800' },
-    { value: 'confirmee', label: 'Confirmée', color: 'bg-blue-100 text-blue-800' },
-    { value: 'en_preparation', label: 'En préparation', color: 'bg-purple-100 text-purple-800' },
-    { value: 'prete', label: 'Prête', color: 'bg-green-100 text-green-800' },
-    { value: 'livree', label: 'Livrée', color: 'bg-teal-100 text-teal-800' },
-    { value: 'annulee', label: 'Annulée', color: 'bg-red-100 text-red-800' }
+    { value: 'nouvelle', label: 'Nouvelle', color: 'bg-blue-100 text-blue-800' },
+    { value: 'en_cours', label: 'En cours', color: 'bg-yellow-100 text-yellow-800' },
+    { value: 'terminee', label: 'Terminée', color: 'bg-green-100 text-green-800' },
+    { value: 'livree', label: 'Livrée', color: 'bg-teal-100 text-teal-800' }
   ];
 
   constructor(
@@ -177,10 +175,7 @@ export class MesCommandesComponent implements OnInit {
   }
 
   formatMontant(montant: number): string {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(montant);
+    return new Intl.NumberFormat('fr-FR').format(montant) + ' Ar';
   }
 
   get pages(): number[] {

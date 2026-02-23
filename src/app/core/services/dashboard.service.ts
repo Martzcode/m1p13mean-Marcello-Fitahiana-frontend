@@ -18,5 +18,9 @@ export class DashboardService {
   getYearlyRevenue(year: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/revenue/${year}`);
   }
+
+  getMerchantStats(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/merchant/stats`);
+  }
 }
 

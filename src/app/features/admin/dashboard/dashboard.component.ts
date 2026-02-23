@@ -44,11 +44,15 @@ export class AdminDashboardComponent implements OnInit {
     return months[month - 1];
   }
 
+  getBarHeight(montant: number): string {
+    const annuel = this.stats()?.chiffreAffaires?.annuel || 1;
+    const maxBarHeight = 220; // px (256 - space for label)
+    const height = Math.round((montant / annuel) * maxBarHeight);
+    return height + 'px';
+  }
+
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('fr-MG', {
-      style: 'currency',
-      currency: 'MGA'
-    }).format(amount);
+    return new Intl.NumberFormat('fr-FR').format(amount) + ' Ar';
   }
 }
 

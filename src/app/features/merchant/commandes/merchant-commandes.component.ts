@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { BoutiqueService } from '../../../core/services/boutique.service';
 import { CommandeService } from '../../../core/services/commande.service';
@@ -49,11 +50,9 @@ export class MerchantCommandesComponent implements OnInit {
 
   statuts = [
     { value: 'nouvelle', label: 'Nouvelle' },
-    { value: 'confirmee', label: 'Confirmée' },
-    { value: 'en_preparation', label: 'En préparation' },
-    { value: 'prete', label: 'Prête' },
-    { value: 'livree', label: 'Livrée' },
-    { value: 'annulee', label: 'Annulée' }
+    { value: 'en_cours', label: 'En cours' },
+    { value: 'terminee', label: 'Terminée' },
+    { value: 'livree', label: 'Livrée' }
   ];
 
   constructor(
@@ -65,18 +64,16 @@ export class MerchantCommandesComponent implements OnInit {
   ngOnInit(): void {
     this.currentUser = this.authService.currentUser();
     this.loadMesBoutiques();
-    this.loadCommandes();
   }
 
   loadMesBoutiques(): void {
     this.boutiqueService.getAll().subscribe({
       next: (response) => {
         const allBoutiques = response.data || response;
-        if (this.currentUser && this.currentUser.boutiques) {
-          this.mesBoutiques = allBoutiques.filter((b: any) =>
-            this.currentUser.boutiques.includes(b._id)
-          );
-        }
+        this.mesBoutiques = allBoutiques.filter((b: any) =>
+          b.commercant?._id === this.currentUser?._id || b.commercant === this.currentUser?._id
+        );
+        this.loadCommandes();
       },
       error: (err) => console.error('Erreur chargement boutiques:', err)
     });
@@ -86,14 +83,20 @@ export class MerchantCommandesComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.commandeService.getAllCommandes().subscribe({
-      next: (response: any) => {
-        const allCommandes = response.data || response;
-        // Filtrer les commandes des boutiques du commerçant
-        this.commandes = allCommandes.filter((c: any) => {
-          const boutiqueId = c.boutique?._id || c.boutique;
-          return this.mesBoutiques.some(b => b._id === boutiqueId);
-        });
+    if (this.mesBoutiques.length === 0) {
+      this.commandes = [];
+      this.applyFilters();
+      this.isLoading = false;
+      return;
+    }
+
+    const requests = this.mesBoutiques.map(b =>
+      this.commandeService.getCommandesByBoutique(b._id)
+    );
+
+    forkJoin(requests).subscribe({
+      next: (responses: any[]) => {
+        this.commandes = responses.flatMap(r => r.data || r);
 
         // Trier par date décroissante
         this.commandes.sort((a, b) => {
@@ -194,16 +197,12 @@ export class MerchantCommandesComponent implements OnInit {
     switch (statut) {
       case 'nouvelle':
         return 'bg-blue-100 text-blue-800';
-      case 'confirmee':
-        return 'bg-green-100 text-green-800';
-      case 'en_preparation':
+      case 'en_cours':
         return 'bg-yellow-100 text-yellow-800';
-      case 'prete':
-        return 'bg-purple-100 text-purple-800';
+      case 'terminee':
+        return 'bg-green-100 text-green-800';
       case 'livree':
         return 'bg-emerald-100 text-emerald-800';
-      case 'annulee':
-        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -222,16 +221,12 @@ export class MerchantCommandesComponent implements OnInit {
   getNextStatut(currentStatut: string): string[] {
     switch (currentStatut) {
       case 'nouvelle':
-        return ['confirmee', 'annulee'];
-      case 'confirmee':
-        return ['en_preparation', 'annulee'];
-      case 'en_preparation':
-        return ['prete', 'annulee'];
-      case 'prete':
+        return ['en_cours'];
+      case 'en_cours':
+        return ['terminee'];
+      case 'terminee':
         return ['livree'];
       case 'livree':
-        return [];
-      case 'annulee':
         return [];
       default:
         return [];

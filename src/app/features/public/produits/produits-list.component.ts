@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ProduitService } from '../../../core/services/produit.service';
 import { PanierService } from '../../../core/services/panier.service';
 import { BoutiqueService } from '../../../core/services/boutique.service';
+import { DEFAULT_PRODUCT_IMAGE } from '../../../core/constants/app.constants';
 
 interface Produit {
   _id: string;
@@ -34,6 +35,8 @@ interface Boutique {
   styleUrls: ['./produits-list.component.css']
 })
 export class ProduitsListComponent implements OnInit {
+  readonly defaultImage = DEFAULT_PRODUCT_IMAGE;
+
   produits: Produit[] = [];
   produitsAffiches: Produit[] = [];
   boutiques: Boutique[] = [];
@@ -79,7 +82,7 @@ export class ProduitsListComponent implements OnInit {
     // Charger les produits
     this.produitService.getProduits().subscribe({
       next: (data: any) => {
-        this.produits = data.produits || data;
+        this.produits = data.data || data;
         // Filtrer seulement les produits actifs
         this.produits = this.produits.filter(p => p.actif);
         this.extraireCategories();
@@ -221,6 +224,10 @@ export class ProduitsListComponent implements OnInit {
 
   formatPrix(prix: number): string {
     return new Intl.NumberFormat('fr-FR').format(prix) + ' Ar';
+  }
+
+  onImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = this.defaultImage;
   }
 
   resetFiltres(): void {

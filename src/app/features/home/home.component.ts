@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ProduitService } from '../../core/services/produit.service';
+import { DEFAULT_PRODUCT_IMAGE } from '../../core/constants/app.constants';
 
 @Component({
     selector: 'app-home',
@@ -10,8 +12,9 @@ import { AuthService } from '../../core/services/auth.service';
     templateUrl: './home.component.html',
     styleUrl: './home.component.css'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
     authService = inject(AuthService);
+    private produitService = inject(ProduitService);
 
     categories = [
         { id: 1, name: 'Électronique', image: 'https://images.unsplash.com/photo-1498049860654-af1a5c5668ba?auto=format&fit=crop&q=80&w=2070' },
@@ -24,18 +27,45 @@ export class HomeComponent {
         { id: 8, name: 'Livres', image: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&q=80&w=2000' },
     ];
 
-    featuredProducts = [
-        { id: 1, name: 'Casque Audio Premium', price: 199.99, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=1000' },
-        { id: 2, name: 'Montre Connectée', price: 249.99, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=1000' },
-        { id: 3, name: 'Caméra Pro', price: 899.99, image: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&q=80&w=1000' },
-        { id: 4, name: 'Tennis Running', price: 129.99, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1000' },
-    ];
+    featuredProducts: any[] = [];
 
     testimonials = [
         { name: 'Sophie M.', comment: 'Service client exceptionnel et produits de qualité !', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026024d' },
         { name: 'Thomas L.', comment: 'La livraison a été super rapide. Je recommande vivement.', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' },
         { name: 'Marie D.', comment: 'Une expérience d\'achat fluide du début à la fin.', avatar: 'https://i.pravatar.cc/150?u=a04258114e29026302d' },
     ];
+
+    ngOnInit(): void {
+        this.loadFeaturedProducts();
+    }
+
+    loadFeaturedProducts(): void {
+        this.produitService.getProduits({ actif: true }).subscribe({
+            next: (response: any) => {
+                const produits = response.data || response || [];
+                this.featuredProducts = produits
+                    .filter((p: any) => p.stock > 0)
+                    .slice(0, 4)
+                    .map((p: any) => ({
+                        id: p._id,
+                        name: p.nom,
+                        price: p.prix,
+                        image: p.images?.[0] || DEFAULT_PRODUCT_IMAGE
+                    }));
+            },
+            error: () => {
+                this.featuredProducts = [];
+            }
+        });
+    }
+
+    formatPrix(prix: number): string {
+        return new Intl.NumberFormat('fr-FR').format(prix) + ' Ar';
+    }
+
+    onImageError(event: Event): void {
+        (event.target as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
+    }
 
     scrollCategories(direction: 'left' | 'right') {
         const container = document.getElementById('categories-container');

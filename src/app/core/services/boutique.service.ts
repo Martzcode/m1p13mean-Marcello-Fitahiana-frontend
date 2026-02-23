@@ -34,5 +34,9 @@ export class BoutiqueService {
   getStats(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/stats`);
   }
+
+  updateMyBoutique(id: string, data: Partial<any>): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/my`, data);
+  }
 }
 

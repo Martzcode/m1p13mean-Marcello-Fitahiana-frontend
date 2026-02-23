@@ -30,6 +30,7 @@ export class LoyersComponent implements OnInit {
   commercants = signal<any[]>([]);
   loading = signal(false);
   error = signal('');
+  success = signal('');
 
   // Pour utilisation dans le template
   Math = Math;
@@ -42,6 +43,9 @@ export class LoyersComponent implements OnInit {
   // Pagination
   page = signal(1);
   itemsParPage = 10;
+
+  // Impayés (IDs des loyers en retard)
+  loyersImpayesIds = new Set<string>();
 
   // Modal
   showModal = signal(false);
@@ -58,6 +62,7 @@ export class LoyersComponent implements OnInit {
     this.loadLoyers();
     this.loadBoutiques();
     this.loadCommercants();
+    this.loadImpayes();
   }
 
   loadLoyers() {
@@ -80,7 +85,7 @@ export class LoyersComponent implements OnInit {
     this.boutiqueService.getAll().subscribe({
       next: (response) => {
         if (response.success) {
-          this.boutiques.set(response.data.filter((b: any) => b.statut === 'libre'));
+          this.boutiques.set(response.data);
         }
       },
       error: () => {}
@@ -88,14 +93,24 @@ export class LoyersComponent implements OnInit {
   }
 
   loadCommercants() {
-    this.userService.getAll().subscribe({
+    this.userService.getCommercants().subscribe({
       next: (response) => {
         if (response.success) {
-          this.commercants.set(response.data.filter((u: any) => u.role === 'commerçant'));
+          this.commercants.set(response.data);
         }
       },
       error: () => {}
     });
+  }
+
+  // Boutiques disponibles = pas de loyer actif
+  get boutiquesDisponibles() {
+    const idsAvecLoyerActif = new Set(
+      this.loyers()
+        .filter(l => l.statut === 'actif')
+        .map(l => l.boutique._id)
+    );
+    return this.boutiques().filter(b => !idsAvecLoyerActif.has(b._id));
   }
 
   get loyersFiltres() {
@@ -140,9 +155,21 @@ export class LoyersComponent implements OnInit {
     }
   }
 
+  loadImpayes() {
+    this.loyerService.getImpayes().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.loyersImpayesIds = new Set(
+            response.data.map((item: any) => item.loyer?._id || item.loyer)
+          );
+        }
+      },
+      error: () => {}
+    });
+  }
+
   hasRetardPaiement(loyer: any): boolean {
-    // Logique simplifiée - à améliorer avec les vraies données de paiement
-    return loyer.statut === 'actif' && Math.random() > 0.7;
+    return loyer.statut === 'actif' && this.loyersImpayesIds.has(loyer._id);
   }
 
   resetFiltres() {
@@ -179,23 +206,26 @@ export class LoyersComponent implements OnInit {
 
   saveLoyer() {
     if (this.editMode()) {
-      this.loyerService.update(this.currentLoyer._id, this.currentLoyer).subscribe({
+      const { boutique, commercant, _id, ...updateData } = this.currentLoyer;
+      this.loyerService.update(_id, updateData).subscribe({
         next: () => {
           this.closeModal();
+          this.showSuccess('Loyer modifié avec succès');
           this.loadLoyers();
         },
         error: (err) => {
-          this.error.set('Erreur lors de la mise à jour');
+          this.error.set(err.error?.message || 'Erreur lors de la mise à jour');
         }
       });
     } else {
       this.loyerService.create(this.currentLoyer).subscribe({
         next: () => {
           this.closeModal();
+          this.showSuccess('Loyer créé avec succès');
           this.loadLoyers();
         },
         error: (err) => {
-          this.error.set('Erreur lors de la création');
+          this.error.set(err.error?.message || 'Erreur lors de la création');
         }
       });
     }
@@ -205,13 +235,19 @@ export class LoyersComponent implements OnInit {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce loyer ?')) {
       this.loyerService.delete(id).subscribe({
         next: () => {
+          this.showSuccess('Loyer supprimé avec succès');
           this.loadLoyers();
         },
         error: (err) => {
-          this.error.set('Erreur lors de la suppression');
+          this.error.set(err.error?.message || 'Erreur lors de la suppression');
         }
       });
     }
+  }
+
+  showSuccess(message: string) {
+    this.success.set(message);
+    setTimeout(() => this.success.set(''), 4000);
   }
 
   formatCurrency(amount: number): string {

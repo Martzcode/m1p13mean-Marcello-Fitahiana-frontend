@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { PanierService } from '../../../core/services/panier.service';
 import { ItemPanier } from '../../../core/models/panier.model';
+import { DEFAULT_PRODUCT_IMAGE } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-panier',
@@ -14,6 +15,8 @@ import { ItemPanier } from '../../../core/models/panier.model';
   styleUrls: ['./panier.component.css']
 })
 export class PanierComponent implements OnInit, OnDestroy {
+  readonly defaultImage = DEFAULT_PRODUCT_IMAGE;
+
   items: ItemPanier[] = [];
   total: number = 0;
   nombreItems: number = 0;
@@ -131,6 +134,10 @@ export class PanierComponent implements OnInit, OnDestroy {
 
   getSousTotalBoutique(items: ItemPanier[]): number {
     return items.reduce((total, item) => total + this.getSousTotal(item), 0);
+  }
+
+  onImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = this.defaultImage;
   }
 }
 

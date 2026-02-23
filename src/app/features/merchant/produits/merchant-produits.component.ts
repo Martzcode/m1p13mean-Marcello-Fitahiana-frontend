@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { BoutiqueService } from '../../../core/services/boutique.service';
 import { ProduitService } from '../../../core/services/produit.service';
@@ -75,7 +76,6 @@ export class MerchantProduitsComponent implements OnInit {
   ngOnInit(): void {
     this.currentUser = this.authService.currentUser();
     this.loadMesBoutiques();
-    this.loadProduits();
   }
 
   initForm(): void {
@@ -94,11 +94,10 @@ export class MerchantProduitsComponent implements OnInit {
     this.boutiqueService.getAll().subscribe({
       next: (response) => {
         const allBoutiques = response.data || response;
-        if (this.currentUser && this.currentUser.boutiques) {
-          this.mesBoutiques = allBoutiques.filter((b: any) =>
-            this.currentUser.boutiques.includes(b._id)
-          );
-        }
+        this.mesBoutiques = allBoutiques.filter((b: any) =>
+          b.commercant?._id === this.currentUser?._id || b.commercant === this.currentUser?._id
+        );
+        this.loadProduits();
       },
       error: (err) => console.error('Erreur chargement boutiques:', err)
     });
@@ -108,14 +107,20 @@ export class MerchantProduitsComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.produitService.getProduits().subscribe({
-      next: (response) => {
-        const allProduits = response.data || response;
-        // Filtrer les produits des boutiques du commerçant
-        this.produits = allProduits.filter((p: any) => {
-          const boutiqueId = p.boutique?._id || p.boutique;
-          return this.mesBoutiques.some(b => b._id === boutiqueId);
-        });
+    if (this.mesBoutiques.length === 0) {
+      this.produits = [];
+      this.applyFilters();
+      this.isLoading = false;
+      return;
+    }
+
+    const requests = this.mesBoutiques.map(b =>
+      this.produitService.getProduitsByBoutique(b._id)
+    );
+
+    forkJoin(requests).subscribe({
+      next: (responses: any[]) => {
+        this.produits = responses.flatMap(r => r.data || r);
         this.applyFilters();
         this.isLoading = false;
       },

@@ -16,9 +16,12 @@ export interface DashboardStats {
     clients: number;
     commercants: number;
   };
+  produits: {
+    total: number;
+    actifs: number;
+  };
   chiffreAffaires: {
     annuel: number;
     evolutionMensuelle: Array<{ mois: number; montant: number }>;
   };
 }
-

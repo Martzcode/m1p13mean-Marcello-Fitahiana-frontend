@@ -28,11 +28,9 @@ export interface Commande {
 
 export enum StatutCommande {
   Nouvelle = 'nouvelle',
-  Confirmee = 'confirmee',
-  EnPreparation = 'en_preparation',
-  Prete = 'prete',
-  Livree = 'livree',
-  Annulee = 'annulee'
+  EnCours = 'en_cours',
+  Terminee = 'terminee',
+  Livree = 'livree'
 }
 
 export enum ModePaiement {

@@ -13,6 +13,10 @@ export interface Boutique {
   description?: string;
   telephone?: string;
   email?: string;
+  horaires?: {
+    [jour: string]: { ouverture: string; fermeture: string };
+  };
+  images?: string[];
   actif?: boolean;
   createdAt?: Date;
 }

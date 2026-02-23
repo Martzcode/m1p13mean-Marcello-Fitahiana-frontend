@@ -1,32 +1,29 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { BoutiqueService } from '../../../core/services/boutique.service';
 import { ZoneService } from '../../../core/services/zone.service';
-import { UserService } from '../../../core/services/user.service';
 import { Boutique } from '../../../core/models/boutique.model';
 import { Zone } from '../../../core/models/zone.model';
-import { User } from '../../../core/models/user.model';
 import { BOUTIQUE_CATEGORIES } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-boutiques-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './boutiques-list.component.html',
   styleUrl: './boutiques-list.component.css'
 })
 export class BoutiquesListComponent implements OnInit {
   boutiques = signal<Boutique[]>([]);
   zones = signal<Zone[]>([]);
-  commercants = signal<User[]>([]);
   loading = signal(false);
   error = signal('');
+  success = signal('');
 
-  filterZone = signal('');
-  filterStatut = signal('');
-  filterCategorie = signal('');
+  filterZone = '';
+  filterStatut = '';
+  filterCategorie = '';
 
   showModal = signal(false);
   isEditMode = signal(false);
@@ -34,7 +31,7 @@ export class BoutiquesListComponent implements OnInit {
 
   categories = BOUTIQUE_CATEGORIES;
 
-  formData: Boutique = {
+  formData: any = {
     numero: '',
     nom: '',
     categorie: 'Mode',
@@ -49,23 +46,21 @@ export class BoutiquesListComponent implements OnInit {
 
   constructor(
     private boutiqueService: BoutiqueService,
-    private zoneService: ZoneService,
-    private userService: UserService
+    private zoneService: ZoneService
   ) {}
 
   ngOnInit() {
     this.loadBoutiques();
     this.loadZones();
-    this.loadCommercants();
   }
 
   loadBoutiques() {
     this.loading.set(true);
     const params: any = {};
 
-    if (this.filterZone()) params.zone = this.filterZone();
-    if (this.filterStatut()) params.statut = this.filterStatut();
-    if (this.filterCategorie()) params.categorie = this.filterCategorie();
+    if (this.filterZone) params.zone = this.filterZone;
+    if (this.filterStatut) params.statut = this.filterStatut;
+    if (this.filterCategorie) params.categorie = this.filterCategorie;
 
     this.boutiqueService.getAll(params).subscribe({
       next: (response) => {
@@ -86,16 +81,6 @@ export class BoutiquesListComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.zones.set(response.data);
-        }
-      }
-    });
-  }
-
-  loadCommercants() {
-    this.userService.getCommercants().subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.commercants.set(response.data);
         }
       }
     });
@@ -123,8 +108,7 @@ export class BoutiquesListComponent implements OnInit {
     this.currentBoutique.set(boutique);
     this.formData = {
       ...boutique,
-      zone: typeof boutique.zone === 'object' ? boutique.zone._id! : boutique.zone,
-      commercant: typeof boutique.commercant === 'object' ? boutique.commercant?._id : boutique.commercant
+      zone: typeof boutique.zone === 'object' ? boutique.zone._id! : boutique.zone
     };
     this.showModal.set(true);
   }
@@ -136,28 +120,48 @@ export class BoutiquesListComponent implements OnInit {
 
   save() {
     this.loading.set(true);
+    const dataToSend: any = {
+      numero: this.formData.numero,
+      nom: this.formData.nom,
+      categorie: this.formData.categorie,
+      surface: this.formData.surface,
+      zone: this.formData.zone,
+      statut: this.formData.statut,
+      actif: this.formData.actif
+    };
+    if (this.formData.description) {
+      dataToSend.description = this.formData.description;
+    }
+    if (this.formData.telephone) {
+      dataToSend.telephone = this.formData.telephone;
+    }
+    if (this.formData.email) {
+      dataToSend.email = this.formData.email;
+    }
 
     if (this.isEditMode() && this.currentBoutique()) {
-      this.boutiqueService.update(this.currentBoutique()!._id!, this.formData).subscribe({
+      this.boutiqueService.update(this.currentBoutique()!._id!, dataToSend).subscribe({
         next: () => {
           this.loading.set(false);
           this.closeModal();
+          this.showSuccess('Boutique modifiée avec succès');
           this.loadBoutiques();
         },
-        error: () => {
-          this.error.set('Erreur lors de la mise à jour');
+        error: (err) => {
+          this.error.set(err.error?.message || 'Erreur lors de la mise à jour');
           this.loading.set(false);
         }
       });
     } else {
-      this.boutiqueService.create(this.formData).subscribe({
+      this.boutiqueService.create(dataToSend).subscribe({
         next: () => {
           this.loading.set(false);
           this.closeModal();
+          this.showSuccess('Boutique créée avec succès');
           this.loadBoutiques();
         },
-        error: () => {
-          this.error.set('Erreur lors de la création');
+        error: (err) => {
+          this.error.set(err.error?.message || 'Erreur lors de la création');
           this.loading.set(false);
         }
       });
@@ -167,8 +171,11 @@ export class BoutiquesListComponent implements OnInit {
   deleteBoutique(id: string) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette boutique ?')) {
       this.boutiqueService.delete(id).subscribe({
-        next: () => this.loadBoutiques(),
-        error: () => this.error.set('Erreur lors de la suppression')
+        next: () => {
+          this.showSuccess('Boutique supprimée avec succès');
+          this.loadBoutiques();
+        },
+        error: (err) => this.error.set(err.error?.message || 'Erreur lors de la suppression')
       });
     }
   }
@@ -178,19 +185,20 @@ export class BoutiquesListComponent implements OnInit {
   }
 
   resetFilters() {
-    this.filterZone.set('');
-    this.filterStatut.set('');
-    this.filterCategorie.set('');
+    this.filterZone = '';
+    this.filterStatut = '';
+    this.filterCategorie = '';
     this.loadBoutiques();
+  }
+
+  showSuccess(message: string) {
+    this.success.set(message);
+    setTimeout(() => this.success.set(''), 4000);
   }
 
   getZoneName(zone: any): string {
     return typeof zone === 'object' ? zone.nom : '';
   }
 
-  getCommercantName(commercant: any): string {
-    if (!commercant) return '-';
-    return typeof commercant === 'object' ? `${commercant.prenom} ${commercant.nom}` : '-';
-  }
 }
 

@@ -1,94 +1,120 @@
-<div class="min-h-screen bg-gray-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Gestion des Loyers</h1>
+        <p class="mt-1 text-sm text-gray-500">Gérez les contrats de location des boutiques</p>
+      </div>
+      <button (click)="openCreateModal()"
+        class="inline-flex items-center px-4 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Nouveau loyer
+      </button>
+    </div>
 
-    <!-- En-tête -->
-    <div class="mb-8">
-      <div class="flex justify-between items-center">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Gestion des Loyers</h1>
-          <p class="mt-1 text-sm text-gray-500">Gérez les contrats de location des boutiques</p>
+    @if (success()) {
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+        <div class="flex items-center">
+          <svg class="h-5 w-5 text-emerald-500 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-sm font-medium text-emerald-700">{{ success() }}</p>
         </div>
-        <button (click)="openCreateModal()"
-                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-          + Nouveau Loyer
+        <button (click)="success.set('')" class="text-emerald-400 hover:text-emerald-600 transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    }
+
+    @if (error()) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+        <div class="flex items-center">
+          <svg class="h-5 w-5 text-red-500 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p class="text-sm font-medium text-red-700">{{ error() }}</p>
+        </div>
+        <button (click)="error.set('')" class="text-red-400 hover:text-red-600 transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    }
+
+    <!-- Filtres -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <input type="text"
+               [ngModel]="filtreRecherche()"
+               (ngModelChange)="filtreRecherche.set($event)"
+               placeholder="Rechercher boutique ou commerçant..."
+               class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+
+        <select [ngModel]="filtreStatut()"
+                (ngModelChange)="filtreStatut.set($event)"
+                class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+          <option value="tous">Tous les statuts</option>
+          <option value="actif">Actif</option>
+          <option value="expiré">Expiré</option>
+          <option value="résilié">Résilié</option>
+        </select>
+
+        <select [ngModel]="filtreRetardPaiement()"
+                (ngModelChange)="filtreRetardPaiement.set($event === 'true' ? true : $event === 'false' ? false : null)"
+                class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+          <option [ngValue]="null">Retard paiement : Tous</option>
+          <option value="true">En retard</option>
+          <option value="false">À jour</option>
+        </select>
+
+        <button (click)="resetFiltres()"
+          class="inline-flex items-center justify-center px-4 py-2.5 bg-white border border-gray-200 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+          <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Réinitialiser
         </button>
       </div>
     </div>
 
-    <!-- Filtres -->
-    <div class="bg-white p-4 rounded-lg shadow mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Rechercher</label>
-          <input type="text"
-                 [(ngModel)]="filtreRecherche"
-                 (ngModelChange)="filtreRecherche.set($event)"
-                 placeholder="Boutique ou commerçant..."
-                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-          <select [(ngModel)]="filtreStatut"
-                  (ngModelChange)="filtreStatut.set($event)"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-            <option value="tous">Tous les statuts</option>
-            <option value="actif">Actif</option>
-            <option value="expiré">Expiré</option>
-            <option value="résilié">Résilié</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Retard paiement</label>
-          <select [(ngModel)]="filtreRetardPaiement"
-                  (ngModelChange)="filtreRetardPaiement.set($event === 'true' ? true : $event === 'false' ? false : null)"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-            <option [ngValue]="null">Tous</option>
-            <option value="true">Oui</option>
-            <option value="false">Non</option>
-          </select>
-        </div>
-
-        <div class="flex items-end">
-          <button (click)="resetFiltres()"
-                  class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-            Réinitialiser
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Loading -->
     @if (loading()) {
       <div class="flex justify-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div class="animate-spin rounded-full h-10 w-10 border-2 border-indigo-200 border-t-indigo-600"></div>
       </div>
     }
 
-    <!-- Table -->
     @if (!loading()) {
-      <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Boutique</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commerçant</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Période</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Début</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fin</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Boutique</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Commerçant</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Montant</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Période</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Début</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fin</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Statut</th>
+              <th class="px-6 py-3.5 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="divide-y divide-gray-100">
             @for (loyer of loyersPagines; track loyer._id) {
-              <tr class="hover:bg-gray-50">
+              <tr class="hover:bg-gray-50/50 transition-colors">
                 <td class="px-6 py-4 text-sm font-medium text-gray-900">
                   <div class="flex items-center">
                     @if (hasRetardPaiement(loyer)) {
-                      <span class="mr-2 text-red-600" title="Retard de paiement">⚠️</span>
+                      <span title="Paiement en retard" class="inline-flex items-center justify-center w-5 h-5 mr-2 bg-red-100 rounded-full cursor-help">
+                        <svg class="h-3 w-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      </span>
                     }
                     {{ loyer.boutique.numero }} - {{ loyer.boutique.nom }}
                   </div>
@@ -99,8 +125,10 @@
                 <td class="px-6 py-4 text-sm font-semibold text-gray-900">
                   {{ formatCurrency(loyer.montant) }}
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
-                  {{ loyer.periodicite }}
+                <td class="px-6 py-4">
+                  <span class="inline-flex px-2.5 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
+                    {{ loyer.periodicite }}
+                  </span>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500">
                   {{ formatDate(loyer.dateDebut) }}
@@ -109,28 +137,43 @@
                   {{ formatDate(loyer.dateFin) }}
                 </td>
                 <td class="px-6 py-4">
-                  <span [ngClass]="{
-                    'bg-green-100 text-green-800': loyer.statut === 'actif',
-                    'bg-red-100 text-red-800': loyer.statut === 'résilié',
-                    'bg-gray-100 text-gray-800': loyer.statut === 'expiré'
-                  }" class="px-2 py-1 text-xs font-semibold rounded-full">
-                    {{ loyer.statut }}
-                  </span>
+                  @if (loyer.statut === 'actif') {
+                    <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                      Actif
+                    </span>
+                  } @else if (loyer.statut === 'résilié') {
+                    <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-red-50 text-red-700">
+                      <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
+                      Résilié
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+                      <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-1.5"></span>
+                      Expiré
+                    </span>
+                  }
                 </td>
-                <td class="px-6 py-4 text-right text-sm space-x-2">
-                  <button (click)="openEditModal(loyer)"
-                          class="text-indigo-600 hover:text-indigo-900">
-                    Modifier
-                  </button>
-                  <button (click)="deleteLoyer(loyer._id)"
-                          class="text-red-600 hover:text-red-900">
-                    Supprimer
-                  </button>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button (click)="openEditModal(loyer)" title="Modifier"
+                      class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button (click)="deleteLoyer(loyer._id)" title="Supprimer"
+                      class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-12 text-center text-sm text-gray-400">
                   Aucun loyer trouvé
                 </td>
               </tr>
@@ -140,54 +183,34 @@
 
         <!-- Pagination -->
         @if (totalPages > 1) {
-          <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-            <div class="flex-1 flex justify-between sm:hidden">
+          <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
+            <div class="text-sm text-gray-700">
+              Affichage de
+              <span class="font-medium">{{ (page() - 1) * itemsParPage + 1 }}</span>
+              à
+              <span class="font-medium">{{ Math.min(page() * itemsParPage, loyersFiltres.length) }}</span>
+              sur
+              <span class="font-medium">{{ loyersFiltres.length }}</span>
+              résultats
+            </div>
+            <div class="flex gap-2">
               <button (click)="changePage(page() - 1)"
                       [disabled]="page() === 1"
-                      class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                      class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                 Précédent
               </button>
+              @for (p of pages; track p) {
+                <button (click)="changePage(p)"
+                        [class]="p === page() ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'"
+                        class="px-4 py-2 border rounded-lg text-sm font-medium transition-all">
+                  {{ p }}
+                </button>
+              }
               <button (click)="changePage(page() + 1)"
                       [disabled]="page() === totalPages"
-                      class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                      class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                 Suivant
               </button>
-            </div>
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-              <div>
-                <p class="text-sm text-gray-700">
-                  Affichage de
-                  <span class="font-medium">{{ (page() - 1) * itemsParPage + 1 }}</span>
-                  à
-                  <span class="font-medium">{{ Math.min(page() * itemsParPage, loyersFiltres.length) }}</span>
-                  sur
-                  <span class="font-medium">{{ loyersFiltres.length }}</span>
-                  résultats
-                </p>
-              </div>
-              <div>
-                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                  <button (click)="changePage(page() - 1)"
-                          [disabled]="page() === 1"
-                          class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
-                    ←
-                  </button>
-                  @for (p of pages; track p) {
-                    <button (click)="changePage(p)"
-                            [class.bg-indigo-50]="p === page()"
-                            [class.border-indigo-500]="p === page()"
-                            [class.text-indigo-600]="p === page()"
-                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                      {{ p }}
-                    </button>
-                  }
-                  <button (click)="changePage(page() + 1)"
-                          [disabled]="page() === totalPages"
-                          class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
-                    →
-                  </button>
-                </nav>
-              </div>
             </div>
           </div>
         }
@@ -196,94 +219,122 @@
 
     <!-- Modal -->
     @if (showModal()) {
-      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
-          <h2 class="text-xl font-bold mb-4">
-            {{ editMode() ? 'Modifier le loyer' : 'Nouveau loyer' }}
-          </h2>
+      <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" (click)="closeModal()"></div>
+        <div class="flex min-h-full items-center justify-center p-4">
+          <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl">
 
-          <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 class="text-lg font-semibold text-gray-900">
+                {{ editMode() ? 'Modifier le loyer' : 'Nouveau loyer' }}
+              </h3>
+              <button (click)="closeModal()"
+                class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Body -->
+            <div class="px-6 py-5 space-y-5">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Boutique *</label>
-                <select [(ngModel)]="currentLoyer.boutique"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                  <option value="">Sélectionner...</option>
-                  @for (boutique of boutiques(); track boutique._id) {
-                    <option [value]="boutique._id">{{ boutique.numero }} - {{ boutique.nom }}</option>
-                  }
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Boutique <span class="text-red-400">*</span></label>
+                @if (editMode()) {
+                  <input type="text"
+                    [value]="currentLoyer.boutique?.numero + ' - ' + currentLoyer.boutique?.nom"
+                    disabled
+                    class="w-full px-3 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-500 cursor-not-allowed">
+                } @else if (boutiquesDisponibles.length > 0) {
+                  <select [(ngModel)]="currentLoyer.boutique"
+                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white transition-all">
+                    <option value="">Sélectionner une boutique</option>
+                    @for (boutique of boutiquesDisponibles; track boutique._id) {
+                      <option [value]="boutique._id">{{ boutique.numero }} - {{ boutique.nom }}</option>
+                    }
+                  </select>
+                } @else {
+                  <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                    <p class="text-sm text-orange-700">Aucune boutique disponible. Toutes les boutiques ont déjà un loyer actif.</p>
+                    <a routerLink="/admin/boutiques" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 mt-1 inline-block">
+                      Gérer les boutiques →
+                    </a>
+                  </div>
+                }
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Commerçant <span class="text-red-400">*</span></label>
+                @if (editMode()) {
+                  <input type="text"
+                    [value]="(currentLoyer.commercant?.prenom || '') + ' ' + (currentLoyer.commercant?.nom || '')"
+                    disabled
+                    class="w-full px-3 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-500 cursor-not-allowed">
+                } @else {
+                  <select [(ngModel)]="currentLoyer.commercant"
+                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white transition-all">
+                    <option value="">Sélectionner un commerçant</option>
+                    @for (commercant of commercants(); track commercant._id) {
+                      <option [value]="commercant._id">{{ commercant.prenom }} {{ commercant.nom }}</option>
+                    }
+                  </select>
+                }
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1.5">Montant (Ar) <span class="text-red-400">*</span></label>
+                  <input type="number" [(ngModel)]="currentLoyer.montant" placeholder="0"
+                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white transition-all">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1.5">Périodicité</label>
+                  <input type="text" value="Mensuel" disabled
+                    class="w-full px-3 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-500 cursor-not-allowed">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1.5">Date début <span class="text-red-400">*</span></label>
+                  <input type="date" [(ngModel)]="currentLoyer.dateDebut"
+                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white transition-all">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1.5">Date fin</label>
+                  <input type="date" [(ngModel)]="currentLoyer.dateFin"
+                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white transition-all">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Statut <span class="text-red-400">*</span></label>
+                <select [(ngModel)]="currentLoyer.statut"
+                  class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:bg-white transition-all">
+                  <option value="actif">Actif</option>
+                  <option value="expiré">Expiré</option>
+                  <option value="résilié">Résilié</option>
                 </select>
               </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Commerçant *</label>
-                <select [(ngModel)]="currentLoyer.commercant"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                  <option value="">Sélectionner...</option>
-                  @for (commercant of commercants(); track commercant._id) {
-                    <option [value]="commercant._id">{{ commercant.prenom }} {{ commercant.nom }}</option>
-                  }
-                </select>
-              </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Montant (Ar) *</label>
-                <input type="number" [(ngModel)]="currentLoyer.montant"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Périodicité *</label>
-                <select [(ngModel)]="currentLoyer.periodicite"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                  <option value="mensuel">Mensuel</option>
-                  <option value="trimestriel">Trimestriel</option>
-                  <option value="annuel">Annuel</option>
-                </select>
-              </div>
+            <!-- Footer -->
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+              <button (click)="closeModal()"
+                class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                Annuler
+              </button>
+              <button (click)="saveLoyer()"
+                [disabled]="!editMode() && (boutiquesDisponibles.length === 0 || !currentLoyer.boutique || !currentLoyer.commercant)"
+                class="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                {{ editMode() ? 'Enregistrer' : 'Créer le loyer' }}
+              </button>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Date début *</label>
-                <input type="date" [(ngModel)]="currentLoyer.dateDebut"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Date fin</label>
-                <input type="date" [(ngModel)]="currentLoyer.dateFin"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Statut *</label>
-              <select [(ngModel)]="currentLoyer.statut"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                <option value="actif">Actif</option>
-                <option value="expiré">Expiré</option>
-                <option value="résilié">Résilié</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="flex justify-end space-x-3 mt-6">
-            <button (click)="closeModal()"
-                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-              Annuler
-            </button>
-            <button (click)="saveLoyer()"
-                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-              {{ editMode() ? 'Mettre à jour' : 'Créer' }}
-            </button>
           </div>
         </div>
       </div>
     }
-
   </div>
 </div>
-

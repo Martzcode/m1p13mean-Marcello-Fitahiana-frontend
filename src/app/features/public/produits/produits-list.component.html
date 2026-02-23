@@ -184,8 +184,9 @@
             <!-- Image -->
             <div class="relative h-56 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
               <img
-                [src]="produit.images && produit.images.length > 0 ? produit.images[0] : 'https://via.placeholder.com/400x300?text=Pas+d\'image'"
+                [src]="produit.images && produit.images.length > 0 ? produit.images[0] : defaultImage"
                 [alt]="produit.nom"
+                (error)="onImageError($event)"
                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
               />
               <div
@@ -272,8 +273,9 @@
               <!-- Image -->
               <div class="sm:w-48 h-48 bg-gradient-to-br from-slate-100 to-slate-200 flex-shrink-0">
                 <img
-                  [src]="produit.images && produit.images.length > 0 ? produit.images[0] : 'https://via.placeholder.com/300x200?text=Pas+d\'image'"
+                  [src]="produit.images && produit.images.length > 0 ? produit.images[0] : defaultImage"
                   [alt]="produit.nom"
+                  (error)="onImageError($event)"
                   class="w-full h-full object-cover"
                 />
               </div>
