@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProduitService } from '../../../core/services/produit.service';
 import { PanierService } from '../../../core/services/panier.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { DEFAULT_PRODUCT_IMAGE } from '../../../core/constants/app.constants';
 
 interface Produit {
@@ -46,7 +47,8 @@ export class ProduitDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private produitService: ProduitService,
-    private panierService: PanierService
+    private panierService: PanierService,
+    public authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -137,6 +139,12 @@ export class ProduitDetailComponent implements OnInit {
   ajouterAuPanier(): void {
     if (!this.produit) return;
 
+    // Si non connecté, rediriger vers login
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     if (this.produit.stock === 0) {
       alert('Produit en rupture de stock');
       return;
@@ -178,7 +186,27 @@ export class ProduitDetailComponent implements OnInit {
   }
 
   retourCatalogue(): void {
-    this.router.navigate(['/produits']);
+    if (this.authService.isClient()) {
+      this.router.navigate(['/client/catalogue']);
+    } else {
+      this.router.navigate(['/produits']);
+    }
+  }
+
+  get catalogueUrl(): string {
+    return this.authService.isClient() ? '/client/catalogue' : '/produits';
+  }
+
+  get catalogueLabel(): string {
+    return this.authService.isClient() ? 'Catalogue' : 'Produits';
+  }
+
+  get estDansPanier(): boolean {
+    return this.produit ? this.panierService.estDansPanier(this.produit._id) : false;
+  }
+
+  get quantiteDansPanier(): number {
+    return this.produit ? this.panierService.getQuantiteProduit(this.produit._id) : 0;
   }
 
   formatPrix(prix: number): string {

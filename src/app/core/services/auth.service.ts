@@ -77,6 +77,19 @@ export class AuthService {
     });
   }
 
+  uploadPhoto(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('photo', file);
+    return this.http.put(`${this.apiUrl}/auth/uploadphoto`, formData).pipe(
+      tap((response: any) => {
+        if (response.success) {
+          this.currentUser.set(response.data);
+          this.saveUserToStorage(response.data);
+        }
+      })
+    );
+  }
+
   private setSession(authResult: LoginResponse): void {
     localStorage.setItem('token', authResult.token);
     localStorage.setItem('user', JSON.stringify(authResult.user));

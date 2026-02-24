@@ -33,6 +33,10 @@ export class ProfileComponent implements OnInit {
   // Mode édition
   isEditing = false;
 
+  // Photo
+  photoUrl = '';
+  isUploadingPhoto = false;
+
   constructor(public authService: AuthService) {}
 
   ngOnInit(): void {
@@ -49,6 +53,11 @@ export class ProfileComponent implements OnInit {
         this.email = user.email || '';
         this.telephone = user.telephone || '';
         this.adresse = user.adresse || '';
+        if (user.photo && user.photo !== 'default-user.jpg') {
+          this.photoUrl = 'http://localhost:3000/uploads/' + user.photo;
+        } else {
+          this.photoUrl = '';
+        }
         this.isLoadingProfile = false;
       },
       error: (err) => {
@@ -127,6 +136,33 @@ export class ProfileComponent implements OnInit {
       error: (err) => {
         this.passwordErrorMessage = err.error?.message || 'Erreur lors du changement de mot de passe';
         this.isLoadingPassword = false;
+      }
+    });
+  }
+
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    if (file.size > 5 * 1024 * 1024) {
+      this.errorMessage = 'La photo ne doit pas dépasser 5 Mo';
+      return;
+    }
+
+    this.isUploadingPhoto = true;
+    this.authService.uploadPhoto(file).subscribe({
+      next: (response: any) => {
+        if (response.success && response.data.photo) {
+          this.photoUrl = 'http://localhost:3000/uploads/' + response.data.photo;
+        }
+        this.successMessage = 'Photo mise à jour avec succès';
+        this.isUploadingPhoto = false;
+        setTimeout(() => this.successMessage = '', 4000);
+      },
+      error: (err: any) => {
+        this.errorMessage = err.error?.message || 'Erreur lors de l\'upload de la photo';
+        this.isUploadingPhoto = false;
       }
     });
   }

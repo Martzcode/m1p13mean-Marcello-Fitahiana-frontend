@@ -27,6 +27,9 @@ export class MerchantDashboardComponent implements OnInit {
   loyersImpayes: any[] = [];
   totalImpayes = 0;
 
+  // Evolution CA
+  evolutionCA: { mois: number; montant: number }[] = [];
+
   // Données
   mesBoutiques: any[] = [];
   dernieresCommandes: any[] = [];
@@ -87,6 +90,7 @@ export class MerchantDashboardComponent implements OnInit {
           this.totalLoyerMensuel = data.loyers.totalMensuel;
           this.loyersImpayes = data.loyers.loyersImpayes || [];
           this.totalImpayes = data.loyers.totalImpayes;
+          this.evolutionCA = data.evolutionCA || [];
         }
       },
       error: (err: any) => {
@@ -174,5 +178,20 @@ export class MerchantDashboardComponent implements OnInit {
   getBoutiqueName(boutiqueId: string): string {
     const boutique = this.mesBoutiques.find(b => b._id === boutiqueId);
     return boutique ? boutique.nom : 'Boutique inconnue';
+  }
+
+  getMonthName(month: number): string {
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+    return months[month - 1] || '';
+  }
+
+  getBarHeight(montant: number): string {
+    const max = Math.max(...this.evolutionCA.map(m => m.montant), 1);
+    const height = Math.round((montant / max) * 200);
+    return height + 'px';
+  }
+
+  get totalCAannuel(): number {
+    return this.evolutionCA.reduce((sum, m) => sum + m.montant, 0);
   }
 }

@@ -28,12 +28,8 @@
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
       </svg>
-      <a (click)="retourCatalogue()" class="hover:text-blue-600 transition-colors cursor-pointer">Produits</a>
+      <a (click)="retourCatalogue()" class="hover:text-blue-600 transition-colors cursor-pointer">{{ catalogueLabel }}</a>
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-      </svg>
-      <span *ngIf="produit.categorie" class="hover:text-blue-600 transition-colors">{{ produit.categorie }}</span>
-      <svg *ngIf="produit.categorie" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
       </svg>
       <span class="font-semibold text-slate-800">{{ produit.nom }}</span>
@@ -219,16 +215,28 @@
             </div>
           </div>
 
+          <!-- Info déjà dans le panier -->
+          <div *ngIf="estDansPanier" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-2">
+            <svg class="w-5 h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span class="text-sm text-blue-700 font-medium">
+              Déjà dans le panier ({{ quantiteDansPanier }})
+            </span>
+          </div>
+
           <!-- Bouton ajouter au panier -->
           <button
             (click)="ajouterAuPanier()"
             [disabled]="produit.stock === 0"
-            class="w-full py-4 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-blue-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-3"
+            class="w-full py-4 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-3"
+            [ngClass]="estDansPanier ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-green-500/50' : 'bg-gradient-to-r from-blue-600 to-violet-600 hover:shadow-blue-500/50'"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
-            <span *ngIf="produit.stock > 0">Ajouter au panier</span>
+            <span *ngIf="produit.stock > 0 && !estDansPanier">Ajouter au panier</span>
+            <span *ngIf="produit.stock > 0 && estDansPanier">Ajouter encore</span>
             <span *ngIf="produit.stock === 0">Produit indisponible</span>
           </button>
 

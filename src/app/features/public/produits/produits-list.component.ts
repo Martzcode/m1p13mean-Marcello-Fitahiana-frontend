@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ProduitService } from '../../../core/services/produit.service';
 import { PanierService } from '../../../core/services/panier.service';
 import { BoutiqueService } from '../../../core/services/boutique.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { DEFAULT_PRODUCT_IMAGE } from '../../../core/constants/app.constants';
 
 interface Produit {
@@ -30,7 +31,7 @@ interface Boutique {
 @Component({
   selector: 'app-produits-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './produits-list.component.html',
   styleUrls: ['./produits-list.component.css']
 })
@@ -68,6 +69,7 @@ export class ProduitsListComponent implements OnInit {
     private produitService: ProduitService,
     private panierService: PanierService,
     private boutiqueService: BoutiqueService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
@@ -208,6 +210,12 @@ export class ProduitsListComponent implements OnInit {
   }
 
   ajouterAuPanier(produit: Produit): void {
+    // Si non connecté, rediriger vers login
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     if (produit.stock === 0) {
       alert('Produit en rupture de stock');
       return;

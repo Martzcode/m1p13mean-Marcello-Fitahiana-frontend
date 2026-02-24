@@ -63,6 +63,9 @@
             <a routerLink="/client/catalogue" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
               Catalogue
             </a>
+            <a routerLink="/boutiques" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+              Boutiques
+            </a>
             <a routerLink="/client/panier" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
               Panier
             </a>
@@ -99,6 +102,12 @@
         </div>
       } @else {
         <div class="hidden md:flex md:items-center md:space-x-4">
+          <a routerLink="/boutiques" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+            Boutiques
+          </a>
+          <a routerLink="/produits" routerLinkActive="bg-indigo-50 text-indigo-600" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+            Produits
+          </a>
           <a routerLink="/login" class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
             Connexion
           </a>
@@ -145,6 +154,7 @@
         }
         @if (authService.isClient()) {
           <a routerLink="/client/catalogue" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Catalogue</a>
+          <a routerLink="/boutiques" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Boutiques</a>
           <a routerLink="/client/panier" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Panier</a>
           <a routerLink="/client/commandes" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">Mes Commandes</a>
         }

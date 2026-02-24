@@ -8,6 +8,10 @@ export const routes: Routes = [
         path: 'login',
         loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
     },
+    {
+        path: 'register',
+        loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
+    },
 
     // Protected routes with layout
     {
@@ -31,6 +35,10 @@ export const routes: Routes = [
             {
                 path: 'panier',
                 loadComponent: () => import('./features/client/panier/panier.component').then(m => m.PanierComponent)
+            },
+            {
+                path: 'boutiques',
+                loadComponent: () => import('./features/public/boutiques/boutiques-list.component').then(m => m.BoutiquesListComponent)
             },
             {
                 path: 'boutiques/:id',

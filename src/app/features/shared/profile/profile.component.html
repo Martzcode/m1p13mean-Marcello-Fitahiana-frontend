@@ -19,14 +19,31 @@
       <!-- Avatar & Role Card -->
       <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
         <div class="flex items-center gap-6">
-          <div class="h-20 w-20 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-center text-2xl font-bold">
-            {{ prenom.charAt(0) }}{{ nom.charAt(0) }}
+          <div class="relative group">
+            @if (photoUrl) {
+              <img [src]="photoUrl" alt="Photo de profil"
+                   class="h-20 w-20 rounded-full object-cover border-2 border-indigo-200">
+            } @else {
+              <div class="h-20 w-20 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-center text-2xl font-bold">
+                {{ prenom.charAt(0) }}{{ nom.charAt(0) }}
+              </div>
+            }
+            <label class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <input type="file" accept="image/*" class="hidden" (change)="onPhotoSelected($event)">
+            </label>
           </div>
           <div>
             <h2 class="text-2xl font-bold text-gray-900">{{ prenom }} {{ nom }}</h2>
             <span class="inline-block mt-1 px-3 py-1 text-sm font-medium rounded-full bg-indigo-100 text-indigo-800">
               {{ getRoleLabel() }}
             </span>
+            @if (isUploadingPhoto) {
+              <p class="text-xs text-indigo-600 mt-1">Upload en cours...</p>
+            }
           </div>
         </div>
       </div>
