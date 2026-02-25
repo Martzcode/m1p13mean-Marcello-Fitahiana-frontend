@@ -1,319 +1,203 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6">
   <div class="max-w-5xl mx-auto">
 
-    <!-- En-tête -->
+    <!-- Header -->
     <div class="mb-8">
-      <button
-        (click)="retourPanier()"
-        class="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-medium mb-4 transition-colors">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button (click)="retourPanier()"
+              class="inline-flex items-center text-gray-500 hover:text-gray-900 text-sm font-medium mb-4 transition-colors">
+        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
         Retour au panier
       </button>
-      <h1 class="text-4xl font-bold text-gray-900 mb-2">Validation de la commande</h1>
-      <p class="text-gray-600">Vérifiez vos articles et finalisez votre commande</p>
+      <h1 class="text-2xl font-bold text-gray-900">Validation de la commande</h1>
+      <p class="text-gray-500 text-sm mt-1">Verifiez vos articles et finalisez votre commande</p>
     </div>
 
-    <!-- Message d'erreur si panier vide -->
-    <div *ngIf="error && panier.length === 0" class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg mb-6 shadow-sm">
-      <div class="flex items-start">
-        <svg class="w-6 h-6 text-red-500 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+    <!-- Panier vide -->
+    <div *ngIf="error && panier.length === 0 && !success" class="text-center py-20">
+      <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
         </svg>
-        <div>
-          <h3 class="text-red-800 font-semibold mb-1">Panier vide</h3>
-          <p class="text-red-700">{{ error }}</p>
-          <button
-            (click)="retourAccueil()"
-            class="mt-4 inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-            Voir le catalogue
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Panier vide</h3>
+      <p class="text-gray-500 text-sm mb-4">{{ error }}</p>
+      <button (click)="retourAccueil()"
+              class="px-6 py-2.5 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
+        Voir le catalogue
+      </button>
+    </div>
+
+    <!-- Contenu principal -->
+    <div *ngIf="panier.length > 0 && !success" class="grid lg:grid-cols-3 gap-6">
+
+      <!-- Colonne gauche -->
+      <div class="lg:col-span-2 space-y-5">
+
+        <!-- Recapitulatif -->
+        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-50">
+            <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wide flex items-center gap-2">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+              </svg>
+              Recapitulatif
+            </h2>
+          </div>
+
+          <div class="divide-y divide-gray-50">
+            <div *ngFor="let item of panier" class="px-6 py-4 flex items-center gap-4">
+              <div class="w-14 h-14 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
+                <img *ngIf="item.produit.images && item.produit.images.length > 0"
+                     [src]="item.produit.images[0]" [alt]="item.produit.nom"
+                     (error)="onImageError($event)" class="w-full h-full object-cover">
+                <div *ngIf="!item.produit.images || item.produit.images.length === 0"
+                     class="w-full h-full flex items-center justify-center">
+                  <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-gray-900 truncate">{{ item.produit.nom }}</h3>
+                <p class="text-xs text-gray-500 mt-0.5">{{ item.prixUnitaire | number:'1.0-0' }} Ar x {{ item.quantite }}</p>
+                <span *ngIf="item.produit.stock < item.quantite" class="text-[10px] text-red-600 font-medium">
+                  Stock insuffisant ({{ item.produit.stock }} dispo)
+                </span>
+              </div>
+              <span class="text-sm font-bold text-gray-900 flex-shrink-0">{{ (item.prixUnitaire * item.quantite) | number:'1.0-0' }} Ar</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode de paiement -->
+        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-50">
+            <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Mode de paiement</h2>
+          </div>
+
+          <div class="p-5 space-y-3">
+            <label class="flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all"
+                   [ngClass]="modePaiement === 'livraison' ? 'border-gray-900 bg-gray-50' : 'border-gray-100 hover:border-gray-200'">
+              <input type="radio" name="modePaiement" value="livraison" [(ngModel)]="modePaiement"
+                     class="w-4 h-4 text-gray-900 focus:ring-gray-900">
+              <div class="ml-3 flex-1">
+                <span class="text-sm font-semibold text-gray-900">Paiement a la livraison</span>
+                <p class="text-xs text-gray-500 mt-0.5">Payez en especes a la reception</p>
+              </div>
+              <span *ngIf="modePaiement === 'livraison'" class="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Recommande</span>
+            </label>
+
+            <label class="flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all"
+                   [ngClass]="modePaiement === 'en_ligne' ? 'border-gray-900 bg-gray-50' : 'border-gray-100 hover:border-gray-200'">
+              <input type="radio" name="modePaiement" value="en_ligne" [(ngModel)]="modePaiement"
+                     class="w-4 h-4 text-gray-900 focus:ring-gray-900">
+              <div class="ml-3 flex-1">
+                <span class="text-sm font-semibold text-gray-900">Paiement en ligne</span>
+                <p class="text-xs text-gray-500 mt-0.5">Carte bancaire (mode demo)</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-50">
+            <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Notes <span class="text-gray-400 font-normal normal-case">(optionnel)</span></h2>
+          </div>
+          <div class="p-5">
+            <textarea [(ngModel)]="notes" rows="3"
+                      placeholder="Instructions de livraison, adresse precise..."
+                      class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none bg-gray-50 placeholder-gray-400"
+                      [disabled]="loading"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Colonne droite: Resume -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl border border-gray-100 p-6 sticky top-6">
+          <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-5">Resume</h2>
+
+          <div class="space-y-3 mb-5 pb-5 border-b border-gray-100">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">Articles</span>
+              <span class="font-medium text-gray-900">{{ panier.length }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">Sous-total</span>
+              <span class="font-medium text-gray-900">{{ total | number:'1.0-0' }} Ar</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">Livraison</span>
+              <span class="font-medium text-emerald-600">Gratuit</span>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center mb-6">
+            <span class="font-semibold text-gray-900">Total</span>
+            <span class="text-xl font-bold text-gray-900">{{ total | number:'1.0-0' }} Ar</span>
+          </div>
+
+          <!-- Erreur -->
+          <div *ngIf="error && panier.length > 0" class="mb-4 p-3 bg-red-50 rounded-xl">
+            <p class="text-xs text-red-700">{{ error }}</p>
+          </div>
+
+          <button (click)="validerCommande()" [disabled]="loading || panier.length === 0"
+                  class="w-full py-3.5 bg-gray-900 text-white rounded-xl font-medium text-sm hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
+            <span *ngIf="!loading">Confirmer la commande</span>
+            <span *ngIf="loading" class="flex items-center gap-2">
+              <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Traitement...
+            </span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Contenu principal (si panier non vide) -->
-    <div *ngIf="panier.length > 0 && !success" class="grid lg:grid-cols-3 gap-6">
+    <!-- Succes -->
+    <div *ngIf="success" class="max-w-lg mx-auto text-center py-12">
+      <div class="bg-white rounded-2xl border border-gray-100 p-10">
+        <div class="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5">
+          <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-gray-900 mb-2">Commande confirmee !</h2>
+        <p class="text-gray-500 text-sm mb-6">Votre commande a ete enregistree avec succes</p>
 
-      <!-- Colonne gauche: Récapitulatif -->
-      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-gray-50 rounded-xl p-4 mb-6">
+          <p class="text-xs text-gray-500 mb-1">Numero de commande</p>
+          <p class="text-lg font-bold text-gray-900 font-mono">{{ numeroCommande }}</p>
+        </div>
 
-        <!-- Card récapitulatif produits -->
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-          <div class="bg-gradient-to-r from-indigo-600 to-blue-600 px-6 py-4">
-            <h2 class="text-xl font-bold text-white flex items-center">
-              <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-              </svg>
-              Récapitulatif de votre commande
-            </h2>
+        <div class="space-y-2 mb-6 pb-6 border-b border-gray-100 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-500">Montant</span>
+            <span class="font-semibold text-gray-900">{{ totalCommande | number:'1.0-0' }} Ar</span>
           </div>
-
-          <div class="p-6">
-            <div class="space-y-4">
-              <div *ngFor="let item of panier" class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-
-                <!-- Image produit -->
-                <div class="flex-shrink-0 w-20 h-20 bg-white rounded-lg overflow-hidden shadow-sm">
-                  <img
-                    *ngIf="item.produit.images && item.produit.images.length > 0"
-                    [src]="item.produit.images[0]"
-                    [alt]="item.produit.nom"
-                    (error)="onImageError($event)"
-                    class="w-full h-full object-cover">
-                  <div *ngIf="!item.produit.images || item.produit.images.length === 0" class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                    <svg class="w-10 h-10 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-                    </svg>
-                  </div>
-                </div>
-
-                <!-- Infos produit -->
-                <div class="flex-1 min-w-0">
-                  <h3 class="font-semibold text-gray-900 truncate">{{ item.produit.nom }}</h3>
-                  <p class="text-sm text-gray-500 mt-1">{{ item.produit.description }}</p>
-                  <div class="flex items-center gap-4 mt-2">
-                    <span class="text-sm font-medium text-indigo-600">{{ item.prixUnitaire | number:'1.2-2' }} Ar</span>
-                    <span class="text-sm text-gray-500">× {{ item.quantite }}</span>
-                    <span *ngIf="item.produit.stock < item.quantite" class="text-xs text-red-600 font-medium">
-                      ⚠️ Stock insuffisant ({{ item.produit.stock }} disponibles)
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Total ligne -->
-                <div class="flex-shrink-0 text-right">
-                  <p class="text-lg font-bold text-gray-900">{{ (item.prixUnitaire * item.quantite) | number:'1.2-2' }} Ar</p>
-                </div>
-              </div>
-            </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">Paiement</span>
+            <span class="font-medium text-gray-900">{{ modePaiement === 'livraison' ? 'A la livraison' : 'En ligne' }}</span>
           </div>
         </div>
 
-        <!-- Card mode de paiement -->
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-          <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
-            <h2 class="text-xl font-bold text-white flex items-center">
-              <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-              </svg>
-              Mode de paiement
-            </h2>
-          </div>
-
-          <div class="p-6 space-y-4">
-            <!-- Option 1: Paiement à la livraison -->
-            <label class="relative flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all hover:border-green-300 hover:bg-green-50"
-                   [class.border-green-600]="modePaiement === 'livraison'"
-                   [class.bg-green-50]="modePaiement === 'livraison'"
-                   [class.border-gray-200]="modePaiement !== 'livraison'">
-              <input
-                type="radio"
-                name="modePaiement"
-                value="livraison"
-                [(ngModel)]="modePaiement"
-                class="mt-1 h-5 w-5 text-green-600 focus:ring-green-500">
-              <div class="ml-4 flex-1">
-                <div class="flex items-center justify-between">
-                  <span class="font-semibold text-gray-900">Paiement à la livraison</span>
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Recommandé
-                  </span>
-                </div>
-                <p class="text-sm text-gray-600 mt-1">Payez en espèces lors de la réception de votre commande</p>
-              </div>
-            </label>
-
-            <!-- Option 2: Paiement en ligne -->
-            <label class="relative flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all hover:border-blue-300 hover:bg-blue-50"
-                   [class.border-blue-600]="modePaiement === 'en_ligne'"
-                   [class.bg-blue-50]="modePaiement === 'en_ligne'"
-                   [class.border-gray-200]="modePaiement !== 'en_ligne'">
-              <input
-                type="radio"
-                name="modePaiement"
-                value="en_ligne"
-                [(ngModel)]="modePaiement"
-                class="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500">
-              <div class="ml-4 flex-1">
-                <div class="flex items-center justify-between">
-                  <span class="font-semibold text-gray-900">Paiement en ligne</span>
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    Simulation
-                  </span>
-                </div>
-                <p class="text-sm text-gray-600 mt-1">Paiement sécurisé par carte bancaire (mode démo)</p>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <!-- Notes / Instructions -->
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-          <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
-            <h2 class="text-xl font-bold text-white flex items-center">
-              <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
-              </svg>
-              Notes et instructions (optionnel)
-            </h2>
-          </div>
-
-          <div class="p-6">
-            <textarea
-              [(ngModel)]="notes"
-              rows="4"
-              placeholder="Ajoutez des notes pour votre commande (adresse précise, instructions de livraison, etc.)"
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none transition-all"
-              [disabled]="loading"></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- Colonne droite: Résumé et validation -->
-      <div class="lg:col-span-1">
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 sticky top-6">
-          <div class="bg-gradient-to-r from-orange-600 to-red-600 px-6 py-4">
-            <h2 class="text-xl font-bold text-white">Résumé</h2>
-          </div>
-
-          <div class="p-6 space-y-4">
-            <!-- Détails -->
-            <div class="space-y-3 pb-4 border-b border-gray-200">
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600">Nombre d'articles</span>
-                <span class="font-semibold text-gray-900">{{ panier.length }}</span>
-              </div>
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600">Sous-total</span>
-                <span class="font-semibold text-gray-900">{{ total | number:'1.2-2' }} Ar</span>
-              </div>
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600">Frais de livraison</span>
-                <span class="font-semibold text-green-600">Gratuit</span>
-              </div>
-            </div>
-
-            <!-- Total -->
-            <div class="flex justify-between items-center py-4 border-b border-gray-200">
-              <span class="text-lg font-bold text-gray-900">Total</span>
-              <span class="text-2xl font-bold text-orange-600">{{ total | number:'1.2-2' }} Ar</span>
-            </div>
-
-            <!-- Message d'erreur -->
-            <div *ngIf="error && panier.length > 0" class="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div class="flex items-start">
-                <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                </svg>
-                <p class="text-sm text-red-800">{{ error }}</p>
-              </div>
-            </div>
-
-            <!-- Bouton de validation -->
-            <button
-              (click)="validerCommande()"
-              [disabled]="loading || panier.length === 0"
-              class="w-full py-4 px-6 bg-gradient-to-r from-orange-600 to-red-600 text-white font-bold rounded-xl hover:from-orange-700 hover:to-red-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 shadow-lg flex items-center justify-center">
-              <span *ngIf="!loading">
-                <svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                Confirmer la commande
-              </span>
-              <span *ngIf="loading" class="flex items-center">
-                <svg class="animate-spin h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Traitement...
-              </span>
-            </button>
-
-            <!-- Informations sécurité -->
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div class="flex items-start">
-                <svg class="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                <p class="text-xs text-blue-800">Paiement 100% sécurisé. Vos données sont protégées.</p>
-              </div>
-            </div>
-          </div>
+        <div class="flex gap-3">
+          <button (click)="voirMesCommandes()"
+                  class="flex-1 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors">
+            Mes commandes
+          </button>
+          <button (click)="retourAccueil()"
+                  class="flex-1 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 transition-colors">
+            Catalogue
+          </button>
         </div>
       </div>
     </div>
-
-    <!-- Message de succès -->
-    <div *ngIf="success" class="max-w-2xl mx-auto">
-      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-green-200">
-        <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-12 text-center">
-          <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-4 shadow-lg">
-            <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-            </svg>
-          </div>
-          <h2 class="text-3xl font-bold text-white mb-2">Commande confirmée !</h2>
-          <p class="text-green-100 text-lg">Votre commande a été enregistrée avec succès</p>
-        </div>
-
-        <div class="p-8">
-          <!-- Numéro de commande -->
-          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-indigo-200">
-            <div class="text-center">
-              <p class="text-sm text-gray-600 mb-2">Numéro de commande</p>
-              <p class="text-3xl font-bold text-indigo-600 font-mono">{{ numeroCommande }}</p>
-            </div>
-          </div>
-
-          <!-- Résumé -->
-          <div class="space-y-3 mb-6 pb-6 border-b border-gray-200">
-            <div class="flex justify-between">
-              <span class="text-gray-600">Montant total</span>
-              <span class="font-bold text-gray-900">{{ total | number:'1.2-2' }} Ar</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">Mode de paiement</span>
-              <span class="font-semibold text-gray-900">
-                {{ modePaiement === 'livraison' ? 'Paiement à la livraison' : 'Paiement en ligne' }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Message informatif -->
-          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <div class="flex items-start">
-              <svg class="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-              </svg>
-              <p class="text-sm text-yellow-800">Un email de confirmation vous a été envoyé. Vous pouvez suivre l'état de votre commande dans votre espace client.</p>
-            </div>
-          </div>
-
-          <!-- Boutons d'action -->
-          <div class="flex flex-col sm:flex-row gap-4">
-            <button
-              (click)="voirMesCommandes()"
-              class="flex-1 py-3 px-6 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg transform hover:scale-105">
-              <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-              </svg>
-              Voir mes commandes
-            </button>
-            <button
-              (click)="retourAccueil()"
-              class="flex-1 py-3 px-6 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all">
-              <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-              </svg>
-              Retour à l'accueil
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
-

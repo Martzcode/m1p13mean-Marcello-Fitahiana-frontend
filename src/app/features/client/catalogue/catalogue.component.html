@@ -1,21 +1,18 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-  <!-- Header avec panier -->
-  <div class="bg-white shadow-md sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-6 py-4">
+<div class="min-h-screen bg-gray-50">
+  <!-- Header catalogue -->
+  <div class="bg-white border-b border-gray-100 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
       <div class="flex justify-between items-center">
         <div>
-          <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Catalogue Produits
-          </h1>
-          <p class="text-gray-600 text-sm mt-1">{{ filteredProduits.length }} produit(s) disponible(s)</p>
+          <h1 class="text-2xl font-bold text-gray-900">Catalogue</h1>
+          <p class="text-gray-500 text-sm">{{ filteredProduits.length }} produit(s) disponible(s)</p>
         </div>
         <button (click)="allerAuPanier()"
-                class="relative px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                class="relative w-10 h-10 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-all flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
           </svg>
-          Mon Panier
-          <span *ngIf="nombreItemsPanier > 0" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+          <span *ngIf="nombreItemsPanier > 0" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold rounded-full w-4.5 h-4.5 min-w-[18px] min-h-[18px] flex items-center justify-center">
             {{ nombreItemsPanier }}
           </span>
         </button>
@@ -23,82 +20,65 @@
     </div>
   </div>
 
-  <!-- Messages -->
-  <div class="max-w-7xl mx-auto px-6 mt-4">
-    <div *ngIf="successMessage" class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-sm animate-fade-in">
-      <div class="flex items-center">
-        <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-        </svg>
-        <p class="text-green-800 font-medium">{{ successMessage }}</p>
-      </div>
-    </div>
-    <div *ngIf="errorMessage" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm animate-fade-in">
-      <p class="text-red-800 font-medium">{{ errorMessage }}</p>
-    </div>
+  <!-- Toast succès -->
+  <div *ngIf="successMessage" class="fixed top-20 right-4 z-50 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-slide-in">
+    <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+    </svg>
+    <span class="text-sm font-medium">{{ successMessage }}</span>
   </div>
 
-  <div class="max-w-7xl mx-auto px-6 py-8">
+  <!-- Erreur -->
+  <div *ngIf="errorMessage" class="max-w-7xl mx-auto px-4 sm:px-6 mt-4">
+    <div class="bg-red-50 text-red-700 px-4 py-3 rounded-xl text-sm">{{ errorMessage }}</div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
     <!-- Filtres -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
+    <div class="bg-white rounded-2xl p-5 mb-6 border border-gray-200">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-900">Filtres</h2>
-        <button (click)="resetFilters()" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-          Réinitialiser
+        <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Filtres</h2>
+        <button (click)="resetFilters()" class="text-xs text-gray-500 hover:text-gray-900 font-medium transition-colors">
+          Reinitialiser
         </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <!-- Recherche -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Recherche</label>
-          <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFiltersAndSort()" placeholder="Nom du produit..."
-                 class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFiltersAndSort()" placeholder="Rechercher..."
+                 class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-gray-50 placeholder-gray-400">
         </div>
-
-        <!-- Boutique -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Boutique</label>
           <select [(ngModel)]="selectedBoutique" (ngModelChange)="applyFiltersAndSort()"
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option value="">Toutes</option>
+                  class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-gray-50">
+            <option value="">Boutique</option>
             <option *ngFor="let boutique of boutiques" [value]="boutique._id">{{ boutique.nom }}</option>
           </select>
         </div>
-
-        <!-- Catégorie -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Catégorie</label>
           <select [(ngModel)]="selectedCategorie" (ngModelChange)="applyFiltersAndSort()"
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option value="">Toutes</option>
+                  class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-gray-50">
+            <option value="">Categorie</option>
             <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
           </select>
         </div>
-
-        <!-- Prix Min -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Prix Min (Ar)</label>
-          <input type="number" [(ngModel)]="prixMin" (ngModelChange)="applyFiltersAndSort()" placeholder="0" min="0"
-                 class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <input type="number" [(ngModel)]="prixMin" (ngModelChange)="applyFiltersAndSort()" placeholder="Prix min" min="0"
+                 class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-gray-50 placeholder-gray-400">
         </div>
-
-        <!-- Prix Max -->
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Prix Max (Ar)</label>
-          <input type="number" [(ngModel)]="prixMax" (ngModelChange)="applyFiltersAndSort()" placeholder="∞" min="0"
-                 class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <input type="number" [(ngModel)]="prixMax" (ngModelChange)="applyFiltersAndSort()" placeholder="Prix max" min="0"
+                 class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-gray-50 placeholder-gray-400">
         </div>
       </div>
 
-      <!-- Tri -->
-      <div class="mt-4 flex items-center gap-3">
-        <label class="text-sm font-semibold text-gray-700">Trier par:</label>
+      <div class="mt-3 flex items-center gap-2">
+        <span class="text-xs text-gray-500">Trier:</span>
         <select [(ngModel)]="selectedSort" (ngModelChange)="applyFiltersAndSort()"
-                class="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-          <option value="recent">Plus récents</option>
+                class="px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-gray-50">
+          <option value="recent">Recents</option>
           <option value="prix_asc">Prix croissant</option>
-          <option value="prix_desc">Prix décroissant</option>
+          <option value="prix_desc">Prix decroissant</option>
           <option value="nom">Nom (A-Z)</option>
         </select>
       </div>
@@ -106,64 +86,59 @@
 
     <!-- Loading -->
     <div *ngIf="isLoading" class="flex justify-center items-center py-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div class="w-8 h-8 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin"></div>
     </div>
 
-    <!-- Message vide -->
-    <div *ngIf="!isLoading && paginatedProduits.length === 0" class="bg-white rounded-2xl shadow-lg p-12 text-center">
-      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-      </svg>
-      <p class="text-gray-500 text-lg font-medium">Aucun produit disponible</p>
-      <p class="text-gray-400 text-sm mt-2">Essayez de modifier vos filtres</p>
+    <!-- Vide -->
+    <div *ngIf="!isLoading && paginatedProduits.length === 0" class="text-center py-20">
+      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+      </div>
+      <p class="text-gray-500 font-medium">Aucun produit trouve</p>
+      <p class="text-gray-400 text-sm mt-1">Essayez de modifier vos filtres</p>
     </div>
 
     <!-- Grid Produits -->
-    <div *ngIf="!isLoading && paginatedProduits.length > 0" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div *ngIf="!isLoading && paginatedProduits.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       <div *ngFor="let produit of paginatedProduits"
-           class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer group"
-           (click)="voirDetails(produit._id)">
+           class="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group">
         <!-- Image -->
-        <div class="relative h-48 bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center overflow-hidden">
-          <svg class="w-20 h-20 text-blue-300 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-          </svg>
-          <span *ngIf="estDansPanier(produit._id)"
-                class="absolute top-2 left-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        <div class="relative aspect-square bg-gray-100 overflow-hidden cursor-pointer" (click)="voirDetails(produit._id)">
+          <div class="w-full h-full flex items-center justify-center">
+            <svg class="w-16 h-16 text-gray-300 group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
             </svg>
+          </div>
+          <span *ngIf="estDansPanier(produit._id)"
+                class="absolute top-3 left-3 bg-emerald-500 text-white px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wide uppercase">
             Dans le panier
           </span>
         </div>
 
         <!-- Infos -->
         <div class="p-4">
-          <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-1">{{ produit.nom }}</h3>
-          <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ produit.description }}</p>
+          <p class="text-[11px] text-gray-400 uppercase tracking-wider mb-1">{{ getBoutiqueName(produit.boutique?._id || produit.boutique) }}</p>
+          <h3 class="text-sm font-semibold text-gray-900 mb-1 line-clamp-1 cursor-pointer hover:text-gray-600 transition-colors" (click)="voirDetails(produit._id)">{{ produit.nom }}</h3>
+          <p class="text-xs text-gray-500 mb-3 line-clamp-2">{{ produit.description }}</p>
 
           <div class="flex items-center justify-between mb-3">
-            <span class="text-2xl font-bold text-blue-600">{{ produit.prix | number:'1.0-0' }} Ar</span>
-            <span [class]="getStockBadgeClass(produit.stock)" class="px-2 py-1 text-xs font-semibold rounded-full">
+            <span class="text-lg font-bold text-gray-900">{{ produit.prix | number:'1.0-0' }} <span class="text-xs font-normal text-gray-500">Ar</span></span>
+            <span class="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                  [ngClass]="produit.stock < 5 ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'">
               Stock: {{ produit.stock }}
             </span>
           </div>
 
-          <div class="flex items-center gap-2 mb-4">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-            </svg>
-            <span class="text-xs text-gray-600">{{ getBoutiqueName(produit.boutique?._id || produit.boutique) }}</span>
-          </div>
-
           <div class="flex gap-2">
             <button (click)="voirDetails(produit._id)"
-                    class="flex-1 px-4 py-2 border border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-medium text-sm">
-              Détails
+                    class="flex-1 px-3 py-2 text-xs font-medium border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors">
+              Details
             </button>
             <button (click)="ajouterAuPanier(produit, $event)"
-                    class="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-medium text-sm flex items-center justify-center gap-1">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex-1 px-3 py-2 text-xs font-medium bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
               Panier
@@ -174,22 +149,25 @@
     </div>
 
     <!-- Pagination -->
-    <div *ngIf="!isLoading && filteredProduits.length > itemsPerPage" class="mt-8 flex items-center justify-center gap-2">
+    <div *ngIf="!isLoading && filteredProduits.length > itemsPerPage" class="mt-8 flex items-center justify-center gap-1">
       <button (click)="previousPage()" [disabled]="currentPage === 1"
-              class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-        Précédent
+              class="px-3 py-2 text-sm text-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
       </button>
       <button *ngFor="let page of pages.slice(Math.max(0, currentPage - 3), Math.min(totalPages, currentPage + 2))"
               (click)="goToPage(page)"
-              [class]="page === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
-              class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium">
+              [ngClass]="page === currentPage ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'"
+              class="w-9 h-9 rounded-full text-sm font-medium transition-all">
         {{ page }}
       </button>
       <button (click)="nextPage()" [disabled]="currentPage === totalPages"
-              class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-        Suivant
+              class="px-3 py-2 text-sm text-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
       </button>
     </div>
   </div>
 </div>
-

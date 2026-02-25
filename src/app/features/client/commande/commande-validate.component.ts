@@ -24,6 +24,7 @@ export class CommandeValidateComponent implements OnInit {
   success: boolean = false;
   numeroCommande: string = '';
   commandeId: string = '';
+  totalCommande: number = 0;
 
   constructor(
     private panierService: PanierService,
@@ -41,6 +42,7 @@ export class CommandeValidateComponent implements OnInit {
   chargerPanier(): void {
     this.panier = this.panierService.getPanier();
     this.total = this.panierService.calculerTotal();
+    this.error = '';
 
     // Vérifier que le panier n'est pas vide
     if (this.panier.length === 0) {
@@ -81,7 +83,7 @@ export class CommandeValidateComponent implements OnInit {
         quantite: item.quantite,
         prixUnitaire: item.prixUnitaire
       })),
-      modePaiement: this.modePaiement === 'livraison' ? 'a_la_livraison' : 'en_ligne',
+      modePaiement: this.modePaiement,
       notes: this.notes.trim() || undefined
     };
 
@@ -93,6 +95,7 @@ export class CommandeValidateComponent implements OnInit {
         const commande = response.data || response.commande || response;
         this.numeroCommande = commande.numero || commande._id || '';
         this.commandeId = commande._id || '';
+        this.totalCommande = this.total;
 
         // Vider le panier après succès
         this.panierService.viderPanier();
