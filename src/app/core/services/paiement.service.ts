@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PaiementService {
-  private apiUrl = 'http://localhost:3000/api/v1/paiements';
+  private apiUrl = `${environment.apiUrl}/paiements`;
 
   constructor(private http: HttpClient) { }
 
@@ -77,7 +78,7 @@ export class PaiementService {
    * @param boutiqueId - ID de la boutique
    */
   getPaiementsByBoutique(boutiqueId: string, filters?: any): Observable<any> {
-    const url = `http://localhost:3000/api/v1/boutiques/${boutiqueId}/paiements`;
+    const url = `${environment.apiUrl}/boutiques/${boutiqueId}/paiements`;
     return this.http.get<any>(url, { params: filters });
   }
 

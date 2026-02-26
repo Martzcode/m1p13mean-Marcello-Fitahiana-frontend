@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
@@ -11,7 +12,7 @@ import { DashboardService } from '../../../core/services/dashboard.service';
 @Component({
   selector: 'app-merchant-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './merchant-dashboard.component.html',
   styleUrls: ['./merchant-dashboard.component.css']
 })
@@ -29,6 +30,8 @@ export class MerchantDashboardComponent implements OnInit {
 
   // Evolution CA
   evolutionCA: { mois: number; montant: number }[] = [];
+  selectedBoutiqueCA = '';
+  isLoadingCA = false;
 
   // Données
   mesBoutiques: any[] = [];
@@ -150,6 +153,23 @@ export class MerchantDashboardComponent implements OnInit {
           .slice(0, 5);
       },
       error: (err) => console.error('Erreur chargement commandes:', err)
+    });
+  }
+
+  onBoutiqueCAChange(): void {
+    this.isLoadingCA = true;
+    const boutiqueId = this.selectedBoutiqueCA || undefined;
+    this.dashboardService.getMerchantStats(boutiqueId).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.evolutionCA = response.data.evolutionCA || [];
+        }
+        this.isLoadingCA = false;
+      },
+      error: (err: any) => {
+        console.error('Erreur chargement evolution CA:', err);
+        this.isLoadingCA = false;
+      }
     });
   }
 

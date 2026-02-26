@@ -60,6 +60,11 @@ export class BoutiqueDetailComponent implements OnInit {
     return jour.charAt(0).toUpperCase() + jour.slice(1);
   }
 
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+  }
+
   hasHoraires(): boolean {
     if (!this.boutique?.horaires) return false;
     return this.joursOrdre.some(j =>

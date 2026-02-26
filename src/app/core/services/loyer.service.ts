@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Loyer } from '../models/loyer.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoyerService {
-  private apiUrl = 'http://localhost:3000/api/v1/loyers';
+  private apiUrl = `${environment.apiUrl}/loyers`;
 
   constructor(private http: HttpClient) { }
 

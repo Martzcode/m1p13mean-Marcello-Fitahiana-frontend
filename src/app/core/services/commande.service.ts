@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CommandeService {
-  private apiUrl = 'http://localhost:3000/api/v1/commandes';
+  private apiUrl = `${environment.apiUrl}/commandes`;
 
   constructor(private http: HttpClient) { }
 
@@ -47,7 +48,7 @@ export class CommandeService {
    * @param filters - Filtres optionnels
    */
   getCommandesByBoutique(boutiqueId: string, filters?: any): Observable<any> {
-    const url = `http://localhost:3000/api/v1/boutiques/${boutiqueId}/commandes`;
+    const url = `${environment.apiUrl}/boutiques/${boutiqueId}/commandes`;
     return this.http.get<any>(url, { params: filters });
   }
 

@@ -111,6 +111,10 @@ export const routes: Routes = [
                         loadComponent: () => import('./features/admin/users/users-list.component').then(m => m.UsersListComponent)
                     },
                     {
+                        path: 'depenses',
+                        loadComponent: () => import('./features/admin/depenses/depenses.component').then(m => m.DepensesComponent)
+                    },
+                    {
                         path: 'centre',
                         loadComponent: () => import('./features/admin/centre-config/centre-config.component').then(m => m.CentreConfigComponent)
                     },

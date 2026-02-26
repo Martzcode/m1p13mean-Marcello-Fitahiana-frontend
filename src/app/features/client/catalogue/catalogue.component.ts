@@ -200,6 +200,11 @@ export class CatalogueComponent implements OnInit {
     this.router.navigate(['/client/panier']);
   }
 
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+  }
+
   getBoutiqueName(boutiqueId: string): string {
     const boutique = this.boutiques.find(b => b._id === boutiqueId);
     return boutique ? boutique.nom : '';

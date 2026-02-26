@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ProduitService } from '../../core/services/produit.service';
+import { CentreService } from '../../core/services/centre.service';
 import { DEFAULT_PRODUCT_IMAGE } from '../../core/constants/app.constants';
 
 @Component({
@@ -15,6 +16,9 @@ import { DEFAULT_PRODUCT_IMAGE } from '../../core/constants/app.constants';
 export class HomeComponent implements OnInit {
     authService = inject(AuthService);
     private produitService = inject(ProduitService);
+    private centreService = inject(CentreService);
+
+    centre: any = null;
 
     categories = [
         { id: 1, name: 'Électronique', image: 'https://images.unsplash.com/photo-1498049860654-af1a5c5668ba?auto=format&fit=crop&q=80&w=2070' },
@@ -35,8 +39,29 @@ export class HomeComponent implements OnInit {
         { name: 'Marie D.', comment: 'Une expérience d\'achat fluide du début à la fin.', avatar: 'https://i.pravatar.cc/150?u=a04258114e29026302d' },
     ];
 
+    jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+    joursLabels: Record<string, string> = {
+        lundi: 'Lundi', mardi: 'Mardi', mercredi: 'Mercredi', jeudi: 'Jeudi',
+        vendredi: 'Vendredi', samedi: 'Samedi', dimanche: 'Dimanche'
+    };
+
     ngOnInit(): void {
+        this.loadCentreInfo();
         this.loadFeaturedProducts();
+    }
+
+    loadCentreInfo(): void {
+        this.centreService.getCentre().subscribe({
+            next: (response: any) => {
+                this.centre = response.data || response;
+            },
+            error: () => {}
+        });
+    }
+
+    getTodayKey(): string {
+        const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        return days[new Date().getDay()];
     }
 
     loadFeaturedProducts(): void {

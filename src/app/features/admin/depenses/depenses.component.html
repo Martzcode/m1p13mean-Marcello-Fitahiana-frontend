@@ -1,0 +1,565 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Gestion des Dépenses</h1>
+        <p class="mt-1 text-sm text-gray-500">Suivez et gérez les dépenses du centre commercial</p>
+      </div>
+      <div class="flex gap-3">
+        <button (click)="exportCSV()"
+          class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-200 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Exporter CSV
+        </button>
+        <button (click)="openCreateModal()"
+          class="inline-flex items-center px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors shadow-sm">
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Nouvelle dépense
+        </button>
+      </div>
+    </div>
+
+    @if (success()) {
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+        <div class="flex items-center">
+          <svg class="h-5 w-5 text-emerald-500 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-sm font-medium text-emerald-700">{{ success() }}</p>
+        </div>
+        <button (click)="success.set('')" class="text-emerald-400 hover:text-emerald-600 transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    }
+
+    @if (error()) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+        <div class="flex items-center">
+          <svg class="h-5 w-5 text-red-500 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p class="text-sm font-medium text-red-700">{{ error() }}</p>
+        </div>
+        <button (click)="error.set('')" class="text-red-400 hover:text-red-600 transition-colors">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    }
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+      @for (type of typesCharge; track type.value) {
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">{{ type.label }}</span>
+            @switch (type.color) {
+              @case ('blue') {
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+              }
+              @case ('amber') {
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              }
+              @case ('purple') {
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+              }
+              @case ('red') {
+                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+              }
+              @case ('emerald') {
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              }
+            }
+          </div>
+          <p class="text-lg font-bold text-gray-900">{{ formatCurrency(getStatTotal(type.value)) }}</p>
+        </div>
+      }
+    </div>
+
+    <!-- Total + OPEX/CAPEX -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Total dépenses (hors annulées)</p>
+          <p class="text-2xl font-bold text-gray-900 mt-1">{{ formatCurrency(totalMontant) }}</p>
+        </div>
+        <div class="flex gap-8">
+          <div class="text-right">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">OPEX</p>
+            <p class="text-lg font-bold text-blue-600 mt-0.5">
+              {{ formatCurrency(getImpactTotal('OPEX')) }}
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">CAPEX</p>
+            <p class="text-lg font-bold text-emerald-600 mt-0.5">
+              {{ formatCurrency(getImpactTotal('CAPEX')) }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <select [ngModel]="filtreType()"
+                (ngModelChange)="filtreType.set($event); page.set(1)"
+                class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all">
+          <option value="tous">Tous les types</option>
+          @for (type of typesCharge; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+
+        <select [ngModel]="filtreImpact()"
+                (ngModelChange)="filtreImpact.set($event); page.set(1)"
+                class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all">
+          <option value="tous">Tous impacts</option>
+          <option value="OPEX">OPEX</option>
+          <option value="CAPEX">CAPEX</option>
+        </select>
+
+        <select [ngModel]="filtreStatut()"
+                (ngModelChange)="filtreStatut.set($event); page.set(1)"
+                class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all">
+          <option value="tous">Tous statuts</option>
+          <option value="payee">Payée</option>
+          <option value="en_attente">En attente</option>
+          <option value="annulee">Annulée</option>
+        </select>
+
+        <select [ngModel]="filtrePrevisible()"
+                (ngModelChange)="filtrePrevisible.set($event); page.set(1)"
+                class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all">
+          <option value="tous">Prévisibilité</option>
+          <option value="true">Prévisible</option>
+          <option value="false">Non prévisible</option>
+        </select>
+
+        <button (click)="resetFiltres()"
+          class="inline-flex items-center justify-center px-4 py-2.5 bg-white border border-gray-200 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+          <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Réinitialiser
+        </button>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="flex justify-center py-12">
+        <div class="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 border-t-gray-900"></div>
+      </div>
+    }
+
+    @if (!loading()) {
+      <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nom</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Montant</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Impact</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Prévisible</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Statut</th>
+              <th class="px-6 py-3.5 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            @for (depense of depensesPaginees; track depense._id) {
+              <tr class="hover:bg-gray-50/50 transition-colors">
+                <td class="px-6 py-4">
+                  <div>
+                    <p class="text-sm font-medium text-gray-900">{{ depense.nom }}</p>
+                    @if (depense.categorie) {
+                      <p class="text-xs text-gray-400 mt-0.5">{{ depense.categorie }}</p>
+                    }
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  @switch (depense.typeCharge) {
+                    @case ('FIXE') {
+                      <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-blue-50 text-blue-700">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5"></span>
+                        Fixe
+                      </span>
+                    }
+                    @case ('VARIABLE') {
+                      <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-amber-50 text-amber-700">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
+                        Variable
+                      </span>
+                    }
+                    @case ('MIXTE') {
+                      <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-purple-50 text-purple-700">
+                        <span class="w-1.5 h-1.5 rounded-full bg-purple-500 mr-1.5"></span>
+                        Mixte
+                      </span>
+                    }
+                    @case ('EXCEPTIONNELLE') {
+                      <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-red-50 text-red-700">
+                        <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
+                        Except.
+                      </span>
+                    }
+                    @case ('INVESTISSEMENT') {
+                      <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                        Invest.
+                      </span>
+                    }
+                  }
+                </td>
+                <td class="px-6 py-4 text-sm font-semibold text-gray-900">
+                  {{ formatCurrency(depense.montant) }}
+                </td>
+                <td class="px-6 py-4">
+                  @if (depense.impactBudgetaire === 'OPEX') {
+                    <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded bg-blue-100 text-blue-800">OPEX</span>
+                  } @else {
+                    <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded bg-emerald-100 text-emerald-800">CAPEX</span>
+                  }
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  @if (depense.estPrevisible) {
+                    <span class="text-emerald-600">Oui</span>
+                  } @else {
+                    <span class="text-gray-400">Non</span>
+                  }
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  {{ formatDate(depense.date) }}
+                </td>
+                <td class="px-6 py-4">
+                  @switch (depense.statut) {
+                    @case ('payee') {
+                      <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700">Payée</span>
+                    }
+                    @case ('en_attente') {
+                      <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-amber-50 text-amber-700">En attente</span>
+                    }
+                    @case ('annulee') {
+                      <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-500">Annulée</span>
+                    }
+                  }
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <button (click)="openDetailsModal(depense)" title="Détails"
+                      class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                    <button (click)="openEditModal(depense)" title="Modifier"
+                      class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button (click)="deleteDepense(depense._id)" title="Supprimer"
+                      class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="8" class="px-6 py-12 text-center text-sm text-gray-400">
+                  Aucune dépense trouvée
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        @if (totalPages > 1) {
+          <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
+            <div class="text-sm text-gray-700">
+              Affichage de
+              <span class="font-medium">{{ (page() - 1) * itemsParPage + 1 }}</span>
+              à
+              <span class="font-medium">{{ Math.min(page() * itemsParPage, depensesFiltrees.length) }}</span>
+              sur
+              <span class="font-medium">{{ depensesFiltrees.length }}</span>
+              résultats
+            </div>
+            <div class="flex gap-2">
+              <button (click)="changePage(page() - 1)"
+                      [disabled]="page() === 1"
+                      class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                Précédent
+              </button>
+              @for (p of pages; track p) {
+                <button (click)="changePage(p)"
+                        [class]="p === page() ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'"
+                        class="px-4 py-2 border rounded-lg text-sm font-medium transition-all">
+                  {{ p }}
+                </button>
+              }
+              <button (click)="changePage(page() + 1)"
+                      [disabled]="page() === totalPages"
+                      class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                Suivant
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Modal Création / Édition -->
+    @if (showModal()) {
+      <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" (click)="closeModal()"></div>
+        <div class="flex min-h-full items-center justify-center p-4">
+          <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 class="text-lg font-semibold text-gray-900">
+                {{ isEditing() ? 'Modifier la dépense' : 'Nouvelle dépense' }}
+              </h3>
+              <button (click)="closeModal()"
+                class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Body -->
+            <div class="px-6 py-5 space-y-5">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Nom <span class="text-red-400">*</span></label>
+                <input type="text" [(ngModel)]="currentDepense.nom" placeholder="Ex: Loyer local, Électricité..."
+                  class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent focus:bg-white transition-all">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+                <textarea [(ngModel)]="currentDepense.description" rows="2" placeholder="Description de la dépense..."
+                  class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent focus:bg-white transition-all resize-none"></textarea>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1.5">Montant (Ar) <span class="text-red-400">*</span></label>
+                  <input type="number" [(ngModel)]="currentDepense.montant" placeholder="0" min="0"
+                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent focus:bg-white transition-all">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1.5">Date <span class="text-red-400">*</span></label>
+                  <input type="date" [(ngModel)]="currentDepense.date"
+                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent focus:bg-white transition-all">
+                </div>
+              </div>
+
+              <!-- Type de charge -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Type de charge <span class="text-red-400">*</span></label>
+                <div class="grid grid-cols-5 gap-2">
+                  @for (type of typesCharge; track type.value) {
+                    <button type="button" (click)="currentDepense.typeCharge = type.value"
+                      [class]="currentDepense.typeCharge === type.value
+                        ? 'bg-gray-900 text-white border-gray-900 ring-2 ring-gray-300'
+                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'"
+                      class="px-2 py-2 rounded-lg text-center text-xs font-medium border transition-all">
+                      {{ type.label }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <!-- Impact budgétaire -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Impact budgétaire <span class="text-red-400">*</span></label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button type="button" (click)="currentDepense.impactBudgetaire = 'OPEX'"
+                      [class]="currentDepense.impactBudgetaire === 'OPEX'
+                        ? 'bg-blue-600 text-white border-blue-600 ring-2 ring-blue-200'
+                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
+                      class="px-3 py-2 rounded-lg text-center text-xs font-semibold border transition-all">
+                      OPEX
+                    </button>
+                    <button type="button" (click)="currentDepense.impactBudgetaire = 'CAPEX'"
+                      [class]="currentDepense.impactBudgetaire === 'CAPEX'
+                        ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-200'
+                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
+                      class="px-3 py-2 rounded-lg text-center text-xs font-semibold border transition-all">
+                      CAPEX
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Prévisible -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Prévisible ?</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button type="button" (click)="currentDepense.estPrevisible = true"
+                      [class]="currentDepense.estPrevisible === true
+                        ? 'bg-gray-900 text-white border-gray-900 ring-2 ring-gray-300'
+                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
+                      class="px-3 py-2 rounded-lg text-center text-xs font-medium border transition-all">
+                      Oui
+                    </button>
+                    <button type="button" (click)="currentDepense.estPrevisible = false"
+                      [class]="currentDepense.estPrevisible === false
+                        ? 'bg-gray-900 text-white border-gray-900 ring-2 ring-gray-300'
+                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
+                      class="px-3 py-2 rounded-lg text-center text-xs font-medium border transition-all">
+                      Non
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1.5">Catégorie</label>
+                  <input type="text" [(ngModel)]="currentDepense.categorie" placeholder="Ex: Énergie, Maintenance..."
+                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent focus:bg-white transition-all">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1.5">Statut</label>
+                  <select [(ngModel)]="currentDepense.statut"
+                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent focus:bg-white transition-all">
+                    <option value="en_attente">En attente</option>
+                    <option value="payee">Payée</option>
+                    <option value="annulee">Annulée</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+              <button (click)="closeModal()"
+                class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                Annuler
+              </button>
+              <button (click)="saveDepense()"
+                class="px-5 py-2.5 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors shadow-sm">
+                {{ isEditing() ? 'Modifier' : 'Créer' }}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Modal Détails -->
+    @if (showDetailsModal() && selectedDepense) {
+      <div class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" (click)="closeModal()"></div>
+        <div class="flex min-h-full items-center justify-center p-4">
+          <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 class="text-lg font-semibold text-gray-900">Détails de la dépense</h3>
+              <button (click)="closeModal()"
+                class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Body -->
+            <div class="px-6 py-5 space-y-4">
+              <div>
+                <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Nom</p>
+                <p class="text-sm font-semibold text-gray-900">{{ selectedDepense.nom }}</p>
+              </div>
+
+              @if (selectedDepense.description) {
+                <div>
+                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Description</p>
+                  <p class="text-sm text-gray-700">{{ selectedDepense.description }}</p>
+                </div>
+              }
+
+              <div class="border-t border-gray-100"></div>
+
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Montant</p>
+                  <p class="text-sm font-bold text-gray-900">{{ formatCurrency(selectedDepense.montant) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Type de charge</p>
+                  <p class="text-sm font-medium text-gray-900">{{ getTypeLabel(selectedDepense.typeCharge) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Impact</p>
+                  <p class="text-sm font-semibold" [class]="selectedDepense.impactBudgetaire === 'OPEX' ? 'text-blue-700' : 'text-emerald-700'">
+                    {{ selectedDepense.impactBudgetaire }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="border-t border-gray-100"></div>
+
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Prévisible</p>
+                  <p class="text-sm font-medium text-gray-900">{{ selectedDepense.estPrevisible ? 'Oui' : 'Non' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Catégorie</p>
+                  <p class="text-sm font-medium text-gray-900">{{ selectedDepense.categorie || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Statut</p>
+                  <p class="text-sm font-medium text-gray-900">{{ getStatutLabel(selectedDepense.statut) }}</p>
+                </div>
+              </div>
+
+              <div class="border-t border-gray-100"></div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Date</p>
+                  <p class="text-sm text-gray-700">{{ formatDate(selectedDepense.date) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Créée le</p>
+                  <p class="text-sm text-gray-700">{{ formatDate(selectedDepense.createdAt) }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+              <button (click)="closeModal()"
+                class="px-5 py-2.5 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors shadow-sm">
+                Fermer
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

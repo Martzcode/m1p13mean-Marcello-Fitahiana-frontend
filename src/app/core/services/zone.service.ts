@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Zone } from '../models/zone.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ZoneService {
-  private apiUrl = 'http://localhost:3000/api/v1/zones';
+  private apiUrl = `${environment.apiUrl}/zones`;
 
   constructor(private http: HttpClient) { }
 

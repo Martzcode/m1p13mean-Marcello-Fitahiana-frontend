@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CentreCommercial } from '../models/centre.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CentreService {
-  private apiUrl = 'http://localhost:3000/api/v1/centre';
+  private apiUrl = `${environment.apiUrl}/centre`;
 
   constructor(private http: HttpClient) { }
 
@@ -23,7 +24,7 @@ export class CentreService {
    * @param centre - Données du centre à mettre à jour
    */
   updateCentre(centre: Partial<CentreCommercial>): Observable<any> {
-    return this.http.put<any>(this.apiUrl, centre);
+    return this.http.post<any>(this.apiUrl, centre);
   }
 }
 

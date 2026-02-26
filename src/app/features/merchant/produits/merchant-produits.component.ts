@@ -56,11 +56,9 @@ export class MerchantProduitsComponent implements OnInit {
     'Vêtements',
     'Électronique',
     'Alimentation',
-    'Cosmétiques',
-    'Livres',
-    'Sports',
+    'Beauté',
+    'Sport',
     'Maison',
-    'Jouets',
     'Autre'
   ];
 

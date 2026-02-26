@@ -177,22 +177,37 @@
 
     <!-- Évolution Chiffre d'Affaires -->
     <div *ngIf="evolutionCA.length > 0" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-      <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-        </svg>
-        Évolution du Chiffre d'Affaires
-      </h2>
-      <div class="flex items-end gap-2" style="height: 240px;">
-        <div *ngFor="let month of evolutionCA" class="flex-1 flex flex-col items-center justify-end h-full">
-          <div class="w-full max-w-[40px] mx-auto bg-emerald-500 rounded-t hover:bg-emerald-600 transition-colors relative group cursor-pointer"
-               [style.height]="getBarHeight(month.montant)"
-               [style.min-height]="month.montant > 0 ? '4px' : '0px'">
-            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-              {{ month.montant | number:'1.0-0' }} Ar
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+          </svg>
+          Évolution du Chiffre d'Affaires
+        </h2>
+        <select *ngIf="mesBoutiques.length > 1"
+                [(ngModel)]="selectedBoutiqueCA"
+                (ngModelChange)="onBoutiqueCAChange()"
+                class="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">
+          <option value="">Toutes les boutiques</option>
+          <option *ngFor="let boutique of mesBoutiques" [value]="boutique._id">{{ boutique.nom }}</option>
+        </select>
+      </div>
+      <div class="relative">
+        <!-- Spinner overlay -->
+        <div *ngIf="isLoadingCA" class="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-700"></div>
+        </div>
+        <div class="flex items-end gap-2" [class.opacity-40]="isLoadingCA" style="height: 240px;">
+          <div *ngFor="let month of evolutionCA" class="flex-1 flex flex-col items-center justify-end h-full">
+            <div class="w-full max-w-[40px] mx-auto bg-emerald-500 rounded-t hover:bg-emerald-600 transition-colors relative group cursor-pointer"
+                 [style.height]="getBarHeight(month.montant)"
+                 [style.min-height]="month.montant > 0 ? '4px' : '0px'">
+              <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                {{ month.montant | number:'1.0-0' }} Ar
+              </div>
             </div>
+            <span class="text-xs text-gray-500 mt-2 shrink-0">{{ getMonthName(month.mois) }}</span>
           </div>
-          <span class="text-xs text-gray-500 mt-2 shrink-0">{{ getMonthName(month.mois) }}</span>
         </div>
       </div>
       <div class="mt-4 text-center">
