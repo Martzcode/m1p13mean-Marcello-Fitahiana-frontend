@@ -1,318 +1,222 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4">
-  <div class="max-w-7xl mx-auto">
+<div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="max-w-6xl mx-auto">
 
-    <!-- En-tête -->
+    <!-- Header -->
     <div class="mb-8">
-      <h1 class="text-4xl font-bold text-slate-800 mb-2 flex items-center gap-3">
-        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-        </svg>
-        Mes Commandes
-      </h1>
-      <p class="text-slate-600">Suivez l'état de vos commandes en temps réel</p>
+      <h1 class="text-2xl font-bold text-gray-900">Mes Commandes</h1>
+      <p class="text-gray-500 text-sm mt-1">Suivez vos commandes en temps reel</p>
     </div>
 
     <!-- Filtres -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-slate-200">
-      <div class="flex items-center gap-2 mb-4">
-        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-        </svg>
-        <h2 class="text-lg font-semibold text-slate-800">Filtres</h2>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Filtre Statut -->
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">Statut</label>
-          <select [(ngModel)]="filtreStatut" (change)="appliquerFiltres()"
-                  class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-            <option value="">Tous les statuts</option>
-            <option *ngFor="let statut of statutsDisponibles" [value]="statut.value">
-              {{ statut.label }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Filtre Boutique -->
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">Boutique</label>
-          <select [(ngModel)]="filtreBoutique" (change)="appliquerFiltres()"
-                  class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-            <option value="">Toutes les boutiques</option>
-            <option *ngFor="let boutique of boutiquesUniques" [value]="boutique">
-              {{ boutique }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Date Début -->
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">Date début</label>
-          <input type="date" [(ngModel)]="filtreDateDebut" (change)="appliquerFiltres()"
-                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-        </div>
-
-        <!-- Date Fin -->
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">Date fin</label>
-          <input type="date" [(ngModel)]="filtreDateFin" (change)="appliquerFiltres()"
-                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-        </div>
-      </div>
-
-      <!-- Bouton Réinitialiser -->
-      <div class="mt-4">
+    <div class="bg-white rounded-2xl border border-gray-100 p-5 mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Filtres</h2>
         <button (click)="reinitialiserFiltres()"
-                class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-all flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          Réinitialiser
+                class="text-xs text-gray-500 hover:text-gray-900 font-medium transition-colors">
+          Reinitialiser
         </button>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <select [(ngModel)]="filtreStatut" (change)="appliquerFiltres()"
+                class="px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-gray-50">
+          <option value="">Tous les statuts</option>
+          <option *ngFor="let statut of statutsDisponibles" [value]="statut.value">{{ statut.label }}</option>
+        </select>
+        <select [(ngModel)]="filtreBoutique" (change)="appliquerFiltres()"
+                class="px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-gray-50">
+          <option value="">Toutes les boutiques</option>
+          <option *ngFor="let boutique of boutiquesUniques" [value]="boutique">{{ boutique }}</option>
+        </select>
+        <input type="date" [(ngModel)]="filtreDateDebut" (change)="appliquerFiltres()"
+               class="px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-gray-50">
+        <input type="date" [(ngModel)]="filtreDateFin" (change)="appliquerFiltres()"
+               class="px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-gray-50">
       </div>
     </div>
 
     <!-- Loading -->
-    <div *ngIf="loading" class="flex justify-center items-center py-20">
-      <div class="relative">
-        <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-        <div class="mt-4 text-center text-slate-600 font-medium">Chargement...</div>
-      </div>
+    <div *ngIf="loading" class="flex justify-center py-20">
+      <div class="w-8 h-8 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin"></div>
     </div>
 
     <!-- Erreur -->
-    <div *ngIf="error && !loading" class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
-      <div class="flex items-center gap-3">
-        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <p class="text-red-800 font-medium">{{ error }}</p>
-      </div>
-    </div>
+    <div *ngIf="error && !loading" class="bg-red-50 text-red-700 px-5 py-4 rounded-xl text-sm mb-6">{{ error }}</div>
 
-    <!-- Aucune commande -->
+    <!-- Vide -->
     <div *ngIf="!loading && !error && commandesFiltrees.length === 0" class="text-center py-20">
-      <div class="bg-white rounded-2xl shadow-lg p-12 max-w-md mx-auto border border-slate-200">
-        <svg class="w-24 h-24 mx-auto mb-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
         </svg>
-        <h3 class="text-2xl font-bold text-slate-800 mb-3">Aucune commande</h3>
-        <p class="text-slate-600 mb-6">Vous n'avez pas encore passé de commande</p>
-        <button (click)="naviguerCatalogue()"
-                class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl">
-          Découvrir nos produits
-        </button>
       </div>
+      <p class="text-gray-500 font-medium">Aucune commande</p>
+      <p class="text-gray-400 text-sm mt-1 mb-5">Vous n'avez pas encore passe de commande</p>
+      <button (click)="naviguerCatalogue()"
+              class="px-6 py-2.5 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
+        Decouvrir le catalogue
+      </button>
     </div>
 
-    <!-- Liste des commandes (Cards Bento Grid) -->
+    <!-- Liste des commandes en cards -->
     <div *ngIf="!loading && !error && commandesFiltrees.length > 0">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <div *ngFor="let commande of commandesPaginees"
-             class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-200 hover:border-blue-300 overflow-hidden">
+             (click)="voirDetails(commande)"
+             class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all cursor-pointer group">
 
-          <!-- En-tête de la card -->
-          <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
-            <div class="flex justify-between items-start mb-2">
-              <div>
-                <p class="text-xs font-medium opacity-90">Commande</p>
-                <p class="text-lg font-bold">#{{ commande.numeroCommande || commande._id?.substring(0, 8) }}</p>
-              </div>
-              <span [ngClass]="getStatutColor(commande.statut)"
-                    class="px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
-                {{ getStatutLabel(commande.statut) }}
-              </span>
-            </div>
-            <p class="text-sm opacity-90">{{ formatDate(commande.createdAt) }}</p>
+          <!-- Header card -->
+          <div class="bg-gray-100 px-5 py-3.5 flex items-center justify-between border-b border-gray-200">
+            <h3 class="text-sm font-bold text-gray-900">#{{ commande.numeroCommande || commande._id?.substring(0, 8) }}</h3>
+            <span class="text-[10px] font-semibold px-2.5 py-0.5 rounded-full" [ngClass]="getStatutColor(commande.statut)">
+              {{ getStatutLabel(commande.statut) }}
+            </span>
           </div>
 
-          <!-- Contenu de la card -->
+          <!-- Contenu -->
           <div class="p-5">
-            <!-- Boutique -->
-            <div class="flex items-center gap-3 mb-3 pb-3 border-b border-slate-100">
-              <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-              </svg>
-              <div class="flex-1">
-                <p class="text-xs text-slate-500">Boutique</p>
-                <p class="font-semibold text-slate-800">{{ commande.boutique?.nom || 'N/A' }}</p>
+            <!-- Boutique + Date -->
+            <div class="flex items-center gap-2.5 mb-4">
+              <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-900">{{ commande.boutique?.nom || 'N/A' }}</p>
+                <p class="text-[11px] text-gray-400">{{ formatDate(commande.createdAt) }}</p>
               </div>
             </div>
 
-            <!-- Montant -->
-            <div class="flex items-center justify-between mb-3 pb-3 border-b border-slate-100">
-              <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span class="text-sm text-slate-600">Montant total</span>
+            <!-- Montant + Paiement -->
+            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div>
+                <p class="text-[10px] text-gray-400 uppercase tracking-wide">Montant</p>
+                <p class="text-lg font-bold text-gray-900">{{ formatMontant(commande.montantTotal) }}</p>
               </div>
-              <span class="text-xl font-bold text-blue-600">{{ formatMontant(commande.montantTotal) }}</span>
+              <div class="text-right">
+                <p class="text-[10px] text-gray-400 uppercase tracking-wide">Paiement</p>
+                <span class="text-xs font-semibold" [ngClass]="commande.paye ? 'text-emerald-600' : 'text-amber-600'">
+                  {{ commande.paye ? 'Payee' : 'En attente' }}
+                </span>
+              </div>
             </div>
 
-            <!-- Statut Paiement -->
-            <div class="mb-4">
-              <span [ngClass]="getPaiementColor(commande.statutPaiement)"
-                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                </svg>
-                {{ getPaiementLabel(commande.statutPaiement) }}
-              </span>
-            </div>
-
-            <!-- Bouton Voir Détails -->
-            <button (click)="voirDetails(commande)"
-                    class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 group-hover:scale-105 transform duration-200">
-              <span>Voir détails</span>
-              <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Voir details -->
+            <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between">
+              <span class="text-xs text-gray-900 font-semibold group-hover:underline">Voir les details</span>
+              <svg class="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
-            </button>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Pagination -->
-      <div *ngIf="totalPages > 1" class="flex justify-center items-center gap-2 mt-8">
+      <div *ngIf="totalPages > 1" class="flex justify-center items-center gap-1">
         <button (click)="changerPage(page - 1)" [disabled]="page === 1"
-                class="px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">
+                class="px-3 py-2 text-gray-500 hover:text-gray-900 disabled:opacity-30 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
           </svg>
         </button>
-
-        <div class="flex gap-2">
-          <button *ngFor="let p of pages" (click)="changerPage(p)"
-                  [class.bg-gradient-to-r]="p === page"
-                  [class.from-blue-600]="p === page"
-                  [class.to-purple-600]="p === page"
-                  [class.text-white]="p === page"
-                  [class.bg-white]="p !== page"
-                  [class.text-slate-700]="p !== page"
-                  class="px-4 py-2 rounded-lg font-medium border border-slate-300 hover:border-blue-400 transition-all min-w-[44px]">
-            {{ p }}
-          </button>
-        </div>
-
+        <button *ngFor="let p of pages" (click)="changerPage(p)"
+                [ngClass]="p === page ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'"
+                class="w-9 h-9 rounded-full text-sm font-medium transition-all">
+          {{ p }}
+        </button>
         <button (click)="changerPage(page + 1)" [disabled]="page === totalPages"
-                class="px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">
+                class="px-3 py-2 text-gray-500 hover:text-gray-900 disabled:opacity-30 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
           </svg>
         </button>
       </div>
 
-      <!-- Info pagination -->
-      <div class="text-center mt-4 text-sm text-slate-600">
-        Affichage {{ (page - 1) * limit + 1 }}-{{ Math.min(page * limit, commandesFiltrees.length) }} sur {{ commandesFiltrees.length }} commande(s)
-      </div>
+      <p class="text-center mt-3 text-xs text-gray-400">
+        {{ (page - 1) * limit + 1 }}-{{ Math.min(page * limit, commandesFiltrees.length) }} sur {{ commandesFiltrees.length }}
+      </p>
     </div>
   </div>
 </div>
 
-<!-- Modal Détails Commande -->
-<div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+<!-- Modal Details -->
+<div *ngIf="showModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
      (click)="fermerModal()">
-  <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto" (click)="$event.stopPropagation()">
 
-    <!-- En-tête Modal -->
-    <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
-      <div class="flex justify-between items-start">
-        <div>
-          <h3 class="text-2xl font-bold mb-1">Détails de la commande</h3>
-          <p class="text-sm opacity-90">#{{ commandeSelectionnee?.numeroCommande || commandeSelectionnee?._id?.substring(0, 8) }}</p>
-        </div>
-        <button (click)="fermerModal()"
-                class="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
+    <!-- Header Modal -->
+    <div class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 rounded-t-2xl flex justify-between items-center">
+      <div>
+        <h3 class="text-lg font-bold text-gray-900">Commande #{{ commandeSelectionnee?.numeroCommande || commandeSelectionnee?._id?.substring(0, 8) }}</h3>
+        <p class="text-xs text-gray-500 mt-0.5">{{ formatDate(commandeSelectionnee?.createdAt) }}</p>
       </div>
+      <button (click)="fermerModal()"
+              class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
     </div>
 
     <div class="p-6">
-      <!-- Informations Générales -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div class="bg-slate-50 rounded-lg p-4">
-          <p class="text-xs text-slate-500 mb-1">Date de commande</p>
-          <p class="font-semibold text-slate-800">{{ formatDate(commandeSelectionnee?.createdAt) }}</p>
+      <!-- Infos -->
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="bg-gray-50 rounded-xl p-4">
+          <p class="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Boutique</p>
+          <p class="text-sm font-semibold text-gray-900">{{ commandeSelectionnee?.boutique?.nom || 'N/A' }}</p>
         </div>
-        <div class="bg-slate-50 rounded-lg p-4">
-          <p class="text-xs text-slate-500 mb-1">Boutique</p>
-          <p class="font-semibold text-slate-800">{{ commandeSelectionnee?.boutique?.nom || 'N/A' }}</p>
-        </div>
-        <div class="bg-slate-50 rounded-lg p-4">
-          <p class="text-xs text-slate-500 mb-1">Statut</p>
+        <div class="bg-gray-50 rounded-xl p-4">
+          <p class="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Statut</p>
           <span [ngClass]="getStatutColor(commandeSelectionnee?.statut)"
-                class="inline-block px-3 py-1 rounded-full text-sm font-semibold">
+                class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold">
             {{ getStatutLabel(commandeSelectionnee?.statut) }}
           </span>
         </div>
-        <div class="bg-slate-50 rounded-lg p-4">
-          <p class="text-xs text-slate-500 mb-1">Paiement</p>
-          <span [ngClass]="getPaiementColor(commandeSelectionnee?.statutPaiement)"
-                class="inline-block px-3 py-1 rounded-lg text-sm font-semibold">
-            {{ getPaiementLabel(commandeSelectionnee?.statutPaiement) }}
+        <div class="bg-gray-50 rounded-xl p-4">
+          <p class="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Paiement</p>
+          <span class="text-sm font-semibold" [ngClass]="commandeSelectionnee?.paye ? 'text-emerald-600' : 'text-amber-600'">
+            {{ commandeSelectionnee?.paye ? 'Payee' : 'En attente' }}
           </span>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4">
+          <p class="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Mode</p>
+          <p class="text-sm font-semibold text-gray-900 capitalize">{{ commandeSelectionnee?.modePaiement || 'N/A' }}</p>
         </div>
       </div>
 
-      <!-- Mode de Paiement -->
-      <div class="bg-blue-50 rounded-lg p-4 mb-6">
-        <p class="text-xs text-slate-500 mb-1">Mode de paiement</p>
-        <p class="font-semibold text-slate-800 capitalize">{{ commandeSelectionnee?.modePaiement || 'N/A' }}</p>
-      </div>
-
       <!-- Notes -->
-      <div *ngIf="commandeSelectionnee?.notes" class="bg-yellow-50 rounded-lg p-4 mb-6 border-l-4 border-yellow-400">
-        <p class="text-xs text-slate-500 mb-1 flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
-          </svg>
-          Notes
-        </p>
-        <p class="text-slate-700">{{ commandeSelectionnee.notes }}</p>
+      <div *ngIf="commandeSelectionnee?.notes" class="bg-amber-50 rounded-xl p-4 mb-6 border border-amber-100">
+        <p class="text-[10px] text-amber-600 uppercase tracking-wide mb-1">Notes</p>
+        <p class="text-sm text-gray-700">{{ commandeSelectionnee.notes }}</p>
       </div>
 
-      <!-- Liste des Produits -->
+      <!-- Produits -->
       <div class="mb-6">
-        <h4 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-          </svg>
-          Produits
-        </h4>
-        <div class="space-y-3">
+        <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-3">Produits</h4>
+        <div class="space-y-2">
           <div *ngFor="let item of commandeSelectionnee?.items"
-               class="flex justify-between items-center p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-all">
-            <div class="flex-1">
-              <p class="font-semibold text-slate-800">{{ item.produit?.nom || item.nomProduit || 'Produit' }}</p>
-              <p class="text-sm text-slate-600">Quantité: {{ item.quantite }} × {{ formatMontant(item.prixUnitaire) }}</p>
+               class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+            <div>
+              <p class="text-sm font-medium text-gray-900">{{ item.produit?.nom || item.nomProduit || item.nom || 'Produit' }}</p>
+              <p class="text-xs text-gray-500">{{ item.quantite }} x {{ formatMontant(item.prixUnitaire || item.prix) }}</p>
             </div>
-            <p class="font-bold text-blue-600">{{ formatMontant(item.sousTotal) }}</p>
+            <span class="text-sm font-bold text-gray-900">{{ formatMontant(item.sousTotal) }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Montant Total -->
-      <div class="border-t-2 border-slate-200 pt-4">
-        <div class="flex justify-between items-center">
-          <span class="text-lg font-semibold text-slate-800">Montant Total</span>
-          <span class="text-2xl font-bold text-blue-600">{{ formatMontant(commandeSelectionnee?.montantTotal) }}</span>
-        </div>
+      <!-- Total -->
+      <div class="border-t border-gray-100 pt-4 flex justify-between items-center mb-6">
+        <span class="font-semibold text-gray-900">Total</span>
+        <span class="text-xl font-bold text-gray-900">{{ formatMontant(commandeSelectionnee?.montantTotal) }}</span>
       </div>
 
-      <!-- Bouton Fermer -->
-      <div class="mt-6">
-        <button (click)="fermerModal()"
-                class="w-full px-6 py-3 bg-slate-200 text-slate-800 font-semibold rounded-lg hover:bg-slate-300 transition-all">
-          Fermer
-        </button>
-      </div>
+      <button (click)="fermerModal()"
+              class="w-full py-3 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">
+        Fermer
+      </button>
     </div>
   </div>
 </div>
-

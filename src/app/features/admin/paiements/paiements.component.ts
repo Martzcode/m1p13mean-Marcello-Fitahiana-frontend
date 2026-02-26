@@ -4,21 +4,21 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PaiementService } from '../../../core/services/paiement.service';
 import { LoyerService } from '../../../core/services/loyer.service';
-import { BoutiqueService } from '../../../core/services/boutique.service';
 
 interface Paiement {
   _id: string;
   loyer: {
     _id: string;
     boutique: { numero: string; nom: string };
-    commercant: { prenom: string; nom: string };
     montant: number;
   };
+  commercant: { _id: string; prenom: string; nom: string; email: string };
   datePaiement: string;
   montant: number;
-  modePaiement: string;
+  mois: number;
+  annee: number;
+  methodePaiement: string;
   reference?: string;
-  note?: string;
 }
 
 @Component({
@@ -33,6 +33,7 @@ export class PaiementsComponent implements OnInit {
   loyers = signal<any[]>([]);
   loading = signal(false);
   error = signal('');
+  success = signal('');
 
   // Pour utilisation dans le template
   Math = Math;
@@ -54,10 +55,12 @@ export class PaiementsComponent implements OnInit {
   currentPaiement: any = {};
   selectedPaiement: any = null;
 
+  // Mois payés pour le loyer sélectionné
+  moisPayes = signal<number[]>([]);
+
   constructor(
     private paiementService: PaiementService,
-    private loyerService: LoyerService,
-    private boutiqueService: BoutiqueService
+    private loyerService: LoyerService
   ) {}
 
   ngOnInit() {
@@ -100,21 +103,15 @@ export class PaiementsComponent implements OnInit {
     }
 
     if (this.filtreModePaiement() !== 'tous') {
-      result = result.filter((p: any) => p.modePaiement === this.filtreModePaiement());
+      result = result.filter((p: any) => p.methodePaiement === this.filtreModePaiement());
     }
 
     if (this.filtreMois()) {
-      result = result.filter((p: any) => {
-        const date = new Date(p.datePaiement);
-        return date.getMonth() + 1 === parseInt(this.filtreMois());
-      });
+      result = result.filter((p: any) => p.mois === parseInt(this.filtreMois()));
     }
 
     if (this.filtreAnnee()) {
-      result = result.filter(p => {
-        const date = new Date(p.datePaiement);
-        return date.getFullYear() === parseInt(this.filtreAnnee());
-      });
+      result = result.filter((p: any) => p.annee === parseInt(this.filtreAnnee()));
     }
 
     return result;
@@ -167,14 +164,16 @@ export class PaiementsComponent implements OnInit {
   }
 
   openCreateModal() {
+    const now = new Date();
     this.currentPaiement = {
       loyer: '',
-      datePaiement: new Date().toISOString().split('T')[0],
+      mois: now.getMonth() + 1,
+      annee: now.getFullYear(),
       montant: 0,
-      modePaiement: 'especes',
-      reference: '',
-      note: ''
+      methodePaiement: 'especes',
+      reference: ''
     };
+    this.moisPayes.set([]);
     this.showModal.set(true);
   }
 
@@ -194,17 +193,47 @@ export class PaiementsComponent implements OnInit {
     const loyer = this.loyers().find(l => l._id === this.currentPaiement.loyer);
     if (loyer) {
       this.currentPaiement.montant = loyer.montant;
+      this.loadMoisPayes();
+    } else {
+      this.moisPayes.set([]);
     }
+  }
+
+  onAnneeChange() {
+    if (this.currentPaiement.loyer) {
+      this.loadMoisPayes();
+    }
+  }
+
+  loadMoisPayes() {
+    this.paiementService.getMoisPayes(this.currentPaiement.loyer, this.currentPaiement.annee).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.moisPayes.set(response.data);
+          // Auto-sélectionner le premier mois impayé
+          const premierImpaye = [1,2,3,4,5,6,7,8,9,10,11,12].find(m => !response.data.includes(m));
+          if (premierImpaye) {
+            this.currentPaiement.mois = premierImpaye;
+          }
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  isMoisPaye(mois: number): boolean {
+    return this.moisPayes().includes(mois);
   }
 
   savePaiement() {
     this.paiementService.createPaiement(this.currentPaiement).subscribe({
       next: () => {
         this.closeModal();
+        this.showSuccess('Paiement enregistré avec succès');
         this.loadPaiements();
       },
       error: (err) => {
-        this.error.set('Erreur lors de l\'enregistrement du paiement');
+        this.error.set(err.error?.message || 'Erreur lors de l\'enregistrement du paiement');
       }
     });
   }
@@ -213,28 +242,35 @@ export class PaiementsComponent implements OnInit {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce paiement ?')) {
       this.paiementService.deletePaiement(id).subscribe({
         next: () => {
+          this.showSuccess('Paiement supprimé avec succès');
           this.loadPaiements();
         },
         error: (err) => {
-          this.error.set('Erreur lors de la suppression');
+          this.error.set(err.error?.message || 'Erreur lors de la suppression');
         }
       });
     }
   }
 
+  showSuccess(message: string) {
+    this.success.set(message);
+    setTimeout(() => this.success.set(''), 4000);
+  }
+
   exportCSV() {
     const data = this.paiementsFiltres;
-    const headers = ['Date', 'Boutique', 'Commerçant', 'Montant', 'Mode Paiement', 'Référence'];
+    const headers = ['Mois', 'Année', 'Boutique', 'Commerçant', 'Montant', 'Mode Paiement', 'Référence'];
 
     let csv = headers.join(',') + '\n';
 
     data.forEach((p: any) => {
       const row = [
-        this.formatDate(p.datePaiement),
+        this.getMoisNom(p.mois),
+        p.annee,
         `"${p.loyer?.boutique?.numero} - ${p.loyer?.boutique?.nom}"`,
-        `"${p.loyer?.commercant?.prenom} ${p.loyer?.commercant?.nom}"`,
+        `"${p.commercant?.prenom} ${p.commercant?.nom}"`,
         p.montant,
-        p.modePaiement,
+        p.methodePaiement,
         p.reference || ''
       ];
       csv += row.join(',') + '\n';

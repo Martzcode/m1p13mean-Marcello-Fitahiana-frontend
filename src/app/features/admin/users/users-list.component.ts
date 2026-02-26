@@ -2,9 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
-import { BoutiqueService } from '../../../core/services/boutique.service';
 import { User } from '../../../core/models/user.model';
-import { Boutique } from '../../../core/models/boutique.model';
 
 @Component({
   selector: 'app-users-list',
@@ -16,7 +14,6 @@ import { Boutique } from '../../../core/models/boutique.model';
 export class UsersListComponent implements OnInit {
   users: User[] = [];
   filteredUsers: User[] = [];
-  boutiques: Boutique[] = [];
 
   // Exposer Math pour le template
   Math = Math;
@@ -49,7 +46,6 @@ export class UsersListComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private boutiqueService: BoutiqueService,
     private fb: FormBuilder
   ) {
     this.initForm();
@@ -57,7 +53,6 @@ export class UsersListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUsers();
-    this.loadBoutiques();
   }
 
   initForm(): void {
@@ -69,8 +64,7 @@ export class UsersListComponent implements OnInit {
       role: ['client', Validators.required],
       photo: [''],
       telephone: [''],
-      adresse: [''],
-      boutiques: [[]]
+      adresse: ['']
     });
   }
 
@@ -88,17 +82,6 @@ export class UsersListComponent implements OnInit {
         this.errorMessage = 'Erreur lors du chargement des utilisateurs';
         console.error(err);
         this.isLoading = false;
-      }
-    });
-  }
-
-  loadBoutiques(): void {
-    this.boutiqueService.getAll().subscribe({
-      next: (response) => {
-        this.boutiques = response.data || response;
-      },
-      error: (err) => {
-        console.error('Erreur chargement boutiques:', err);
       }
     });
   }
@@ -156,10 +139,9 @@ export class UsersListComponent implements OnInit {
       prenom: user.prenom,
       email: user.email,
       role: user.role,
-      photo: user.photo || '',
+      photo: user.photo === 'default-user.jpg' ? '' : (user.photo || ''),
       telephone: user.telephone || '',
-      adresse: user.adresse || '',
-      boutiques: user.boutiques || []
+      adresse: user.adresse || ''
     });
 
     this.userForm.get('password')?.clearValidators();
@@ -265,49 +247,17 @@ export class UsersListComponent implements OnInit {
     this.confirmAction = null;
   }
 
-  getRoleBadgeClass(role: string): string {
-    switch (role) {
-      case 'administrateur':
-        return 'bg-purple-100 text-purple-800';
-      case 'commerçant':
-        return 'bg-blue-100 text-blue-800';
-      case 'client':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  }
+  getBoutiquesDisplay(boutiques: any[]): string {
+    if (!boutiques || boutiques.length === 0) return '-';
 
-  getStatusBadgeClass(actif: boolean): string {
-    return actif
-      ? 'bg-green-100 text-green-800'
-      : 'bg-red-100 text-red-800';
-  }
-
-  getBoutiquesForUser(boutiqueIds: string[]): string {
-    if (!boutiqueIds || boutiqueIds.length === 0) return '-';
-
-    return boutiqueIds
-      .map(id => {
-        const boutique = this.boutiques.find(b => b._id === id);
-        return boutique?.nom || 'Inconnu';
+    return boutiques
+      .map(b => {
+        if (typeof b === 'object' && b !== null) {
+          return b.nom || b.numero || '-';
+        }
+        return b;
       })
       .join(', ');
-  }
-
-  getBoutiqueLabel(boutique: any): string {
-    let label = boutique.nom;
-    if (boutique.zone && typeof boutique.zone === 'object' && boutique.zone.nom) {
-      label += ` (${boutique.zone.nom})`;
-    }
-    return label;
-  }
-
-  onRoleChange(): void {
-    const role = this.userForm.get('role')?.value;
-    if (role !== 'commerçant') {
-      this.userForm.patchValue({ boutiques: [] });
-    }
   }
 
   nextPage(): void {

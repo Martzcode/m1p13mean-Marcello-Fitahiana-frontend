@@ -15,6 +15,7 @@ export class ZonesListComponent implements OnInit {
   zones = signal<Zone[]>([]);
   loading = signal(false);
   error = signal('');
+  success = signal('');
 
   showModal = signal(false);
   isEditMode = signal(false);
@@ -85,10 +86,11 @@ export class ZonesListComponent implements OnInit {
         next: () => {
           this.loading.set(false);
           this.closeModal();
+          this.showSuccess('Zone modifiée avec succès');
           this.loadZones();
         },
-        error: () => {
-          this.error.set('Erreur lors de la mise à jour');
+        error: (err) => {
+          this.error.set(err.error?.message || 'Erreur lors de la mise à jour');
           this.loading.set(false);
         }
       });
@@ -97,10 +99,11 @@ export class ZonesListComponent implements OnInit {
         next: () => {
           this.loading.set(false);
           this.closeModal();
+          this.showSuccess('Zone créée avec succès');
           this.loadZones();
         },
-        error: () => {
-          this.error.set('Erreur lors de la création');
+        error: (err) => {
+          this.error.set(err.error?.message || 'Erreur lors de la création');
           this.loading.set(false);
         }
       });
@@ -111,13 +114,19 @@ export class ZonesListComponent implements OnInit {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette zone ?')) {
       this.zoneService.delete(id).subscribe({
         next: () => {
+          this.showSuccess('Zone supprimée avec succès');
           this.loadZones();
         },
-        error: () => {
-          this.error.set('Erreur lors de la suppression');
+        error: (err) => {
+          this.error.set(err.error?.message || 'Erreur lors de la suppression');
         }
       });
     }
+  }
+
+  showSuccess(message: string) {
+    this.success.set(message);
+    setTimeout(() => this.success.set(''), 4000);
   }
 }
 

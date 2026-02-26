@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -12,8 +13,13 @@ import { RouterLink } from '@angular/router';
 export class LoginComponent {
     loginForm: FormGroup;
     isLoading = false;
+    errorMessage = '';
 
-    constructor(private fb: FormBuilder) {
+    constructor(
+        private fb: FormBuilder,
+        private authService: AuthService,
+        private router: Router
+    ) {
         this.loginForm = this.fb.group({
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required, Validators.minLength(6)]]
@@ -23,13 +29,27 @@ export class LoginComponent {
     onSubmit() {
         if (this.loginForm.valid) {
             this.isLoading = true;
-            console.log('Login data:', this.loginForm.value);
+            this.errorMessage = '';
 
-            // Simulate API call
-            setTimeout(() => {
-                this.isLoading = false;
-                alert('Connexion simulée réussie !');
-            }, 1500);
+            this.authService.login(this.loginForm.value).subscribe({
+                next: (response) => {
+                    this.isLoading = false;
+                    if (response.success) {
+                        const user = this.authService.currentUser();
+                        if (user?.role === 'administrateur') {
+                            this.router.navigate(['/admin/dashboard']);
+                        } else if (user?.role === 'commerçant') {
+                            this.router.navigate(['/merchant/dashboard']);
+                        } else {
+                            this.router.navigate(['/client/catalogue']);
+                        }
+                    }
+                },
+                error: (err) => {
+                    this.isLoading = false;
+                    this.errorMessage = err.error?.message || 'Email ou mot de passe incorrect';
+                }
+            });
         } else {
             this.loginForm.markAllAsTouched();
         }

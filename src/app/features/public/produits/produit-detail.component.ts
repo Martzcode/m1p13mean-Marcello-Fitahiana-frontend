@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProduitService } from '../../../core/services/produit.service';
 import { PanierService } from '../../../core/services/panier.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { DEFAULT_PRODUCT_IMAGE } from '../../../core/constants/app.constants';
 
 interface Produit {
   _id: string;
@@ -29,6 +31,8 @@ interface Produit {
   styleUrls: ['./produit-detail.component.css']
 })
 export class ProduitDetailComponent implements OnInit {
+  readonly defaultImage = DEFAULT_PRODUCT_IMAGE;
+
   produit: Produit | null = null;
   produitsSimilaires: Produit[] = [];
 
@@ -43,7 +47,8 @@ export class ProduitDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private produitService: ProduitService,
-    private panierService: PanierService
+    private panierService: PanierService,
+    public authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -61,7 +66,7 @@ export class ProduitDetailComponent implements OnInit {
 
     this.produitService.getProduit(id).subscribe({
       next: (data: any) => {
-        this.produit = data.produit || data;
+        this.produit = data.data || data;
         this.loading = false;
 
         // Charger les produits similaires
@@ -86,7 +91,7 @@ export class ProduitDetailComponent implements OnInit {
       actif: true
     }).subscribe({
       next: (data: any) => {
-        let similaires = data.produits || data;
+        let similaires = data.data || data;
 
         // Exclure le produit actuel
         similaires = similaires.filter((p: Produit) => p._id !== this.produit!._id);
@@ -98,7 +103,7 @@ export class ProduitDetailComponent implements OnInit {
         if (this.produitsSimilaires.length < 3 && this.produit?.boutique?._id) {
           this.produitService.getProduitsByBoutique(this.produit.boutique._id).subscribe({
             next: (data: any) => {
-              let boutiqueProduits = data.produits || data;
+              let boutiqueProduits = data.data || data;
               boutiqueProduits = boutiqueProduits.filter((p: Produit) =>
                 p._id !== this.produit!._id &&
                 !this.produitsSimilaires.find(ps => ps._id === p._id)
@@ -134,6 +139,12 @@ export class ProduitDetailComponent implements OnInit {
   ajouterAuPanier(): void {
     if (!this.produit) return;
 
+    // Si non connecté, rediriger vers login
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     if (this.produit.stock === 0) {
       alert('Produit en rupture de stock');
       return;
@@ -158,7 +169,7 @@ export class ProduitDetailComponent implements OnInit {
   }
 
   allerAuPanier(): void {
-    this.router.navigate(['/panier']);
+    this.router.navigate(['/client/panier']);
   }
 
   voirBoutique(): void {
@@ -175,7 +186,27 @@ export class ProduitDetailComponent implements OnInit {
   }
 
   retourCatalogue(): void {
-    this.router.navigate(['/produits']);
+    if (this.authService.isClient()) {
+      this.router.navigate(['/client/catalogue']);
+    } else {
+      this.router.navigate(['/produits']);
+    }
+  }
+
+  get catalogueUrl(): string {
+    return this.authService.isClient() ? '/client/catalogue' : '/produits';
+  }
+
+  get catalogueLabel(): string {
+    return this.authService.isClient() ? 'Catalogue' : 'Produits';
+  }
+
+  get estDansPanier(): boolean {
+    return this.produit ? this.panierService.estDansPanier(this.produit._id) : false;
+  }
+
+  get quantiteDansPanier(): number {
+    return this.produit ? this.panierService.getQuantiteProduit(this.produit._id) : 0;
   }
 
   formatPrix(prix: number): string {
@@ -184,9 +215,13 @@ export class ProduitDetailComponent implements OnInit {
 
   getImageUrl(index: number): string {
     if (!this.produit || !this.produit.images || this.produit.images.length === 0) {
-      return 'https://via.placeholder.com/600x600?text=Pas+d\'image';
+      return this.defaultImage;
     }
     return this.produit.images[index] || this.produit.images[0];
+  }
+
+  onImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = this.defaultImage;
   }
 
   getImageActive(): string {

@@ -193,7 +193,7 @@ export class CatalogueComponent implements OnInit {
   }
 
   voirDetails(produitId: string): void {
-    this.router.navigate(['/client/produit', produitId]);
+    this.router.navigate(['/produits', produitId]);
   }
 
   allerAuPanier(): void {

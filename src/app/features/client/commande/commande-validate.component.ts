@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { PanierService } from '../../../core/services/panier.service';
 import { CommandeService } from '../../../core/services/commande.service';
 import { ItemPanier } from '../../../core/models/panier.model';
+import { DEFAULT_PRODUCT_IMAGE } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-commande-validate',
@@ -23,6 +24,7 @@ export class CommandeValidateComponent implements OnInit {
   success: boolean = false;
   numeroCommande: string = '';
   commandeId: string = '';
+  totalCommande: number = 0;
 
   constructor(
     private panierService: PanierService,
@@ -40,6 +42,7 @@ export class CommandeValidateComponent implements OnInit {
   chargerPanier(): void {
     this.panier = this.panierService.getPanier();
     this.total = this.panierService.calculerTotal();
+    this.error = '';
 
     // Vérifier que le panier n'est pas vide
     if (this.panier.length === 0) {
@@ -80,7 +83,7 @@ export class CommandeValidateComponent implements OnInit {
         quantite: item.quantite,
         prixUnitaire: item.prixUnitaire
       })),
-      modePaiement: this.modePaiement === 'livraison' ? 'a_la_livraison' : 'en_ligne',
+      modePaiement: this.modePaiement,
       notes: this.notes.trim() || undefined
     };
 
@@ -89,8 +92,10 @@ export class CommandeValidateComponent implements OnInit {
       next: (response) => {
         this.loading = false;
         this.success = true;
-        this.numeroCommande = response.commande.numero || response.commande._id;
-        this.commandeId = response.commande._id;
+        const commande = response.data || response.commande || response;
+        this.numeroCommande = commande.numero || commande._id || '';
+        this.commandeId = commande._id || '';
+        this.totalCommande = this.total;
 
         // Vider le panier après succès
         this.panierService.viderPanier();
@@ -134,6 +139,10 @@ export class CommandeValidateComponent implements OnInit {
    */
   retourPanier(): void {
     this.router.navigate(['/client/panier']);
+  }
+
+  onImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = DEFAULT_PRODUCT_IMAGE;
   }
 }
 

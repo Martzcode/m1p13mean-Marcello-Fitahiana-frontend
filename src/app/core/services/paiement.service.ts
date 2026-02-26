@@ -59,13 +59,17 @@ export class PaiementService {
     return this.http.get<any>(`${this.apiUrl}/commercant/${commercantId}`);
   }
 
+  getMoisPayes(loyerId: string, annee: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/loyer/${loyerId}/mois-payes`, { params: { annee: annee.toString() } });
+  }
+
   /**
    * Récupère les paiements d'un loyer
    * @param loyerId - ID du loyer
    */
   getPaiementsByLoyer(loyerId: string, filters?: any): Observable<any> {
-    const url = `http://localhost:3000/api/v1/loyers/${loyerId}/paiements`;
-    return this.http.get<any>(url, { params: filters });
+    const params = { ...filters, loyer: loyerId };
+    return this.http.get<any>(this.apiUrl, { params });
   }
 
   /**

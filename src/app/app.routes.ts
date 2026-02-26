@@ -1,12 +1,16 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layouts/main/main.component';
-import { authGuard, adminGuard } from './core/guards/auth.guard';
+import { authGuard, adminGuard, merchantGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
     // Public routes (sans layout)
     {
         path: 'login',
         loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
+    },
+    {
+        path: 'register',
+        loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
     },
 
     // Protected routes with layout
@@ -31,6 +35,21 @@ export const routes: Routes = [
             {
                 path: 'panier',
                 loadComponent: () => import('./features/client/panier/panier.component').then(m => m.PanierComponent)
+            },
+            {
+                path: 'boutiques',
+                loadComponent: () => import('./features/public/boutiques/boutiques-list.component').then(m => m.BoutiquesListComponent)
+            },
+            {
+                path: 'boutiques/:id',
+                loadComponent: () => import('./features/public/boutiques/boutique-detail.component').then(m => m.BoutiqueDetailComponent)
+            },
+
+            // Profile (accessible par tous les rôles authentifiés)
+            {
+                path: 'profile',
+                canActivate: [authGuard],
+                loadComponent: () => import('./features/shared/profile/profile.component').then(m => m.ProfileComponent)
             },
 
             // Client routes
@@ -92,10 +111,6 @@ export const routes: Routes = [
                         loadComponent: () => import('./features/admin/users/users-list.component').then(m => m.UsersListComponent)
                     },
                     {
-                        path: 'employes',
-                        loadComponent: () => import('./features/admin/employes/employes-list.component').then(m => m.EmployesListComponent)
-                    },
-                    {
                         path: 'centre',
                         loadComponent: () => import('./features/admin/centre-config/centre-config.component').then(m => m.CentreConfigComponent)
                     },
@@ -110,6 +125,7 @@ export const routes: Routes = [
             // Merchant routes
             {
                 path: 'merchant',
+                canActivate: [merchantGuard],
                 children: [
                     {
                         path: 'dashboard',
@@ -126,6 +142,10 @@ export const routes: Routes = [
                     {
                         path: 'commandes',
                         loadComponent: () => import('./features/merchant/commandes/merchant-commandes.component').then(m => m.MerchantCommandesComponent)
+                    },
+                    {
+                        path: 'loyers',
+                        loadComponent: () => import('./features/merchant/loyers/merchant-loyers.component').then(m => m.MerchantLoyersComponent)
                     },
                     {
                         path: '',

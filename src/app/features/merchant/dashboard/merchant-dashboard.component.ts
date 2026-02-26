@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { BoutiqueService } from '../../../core/services/boutique.service';
 import { ProduitService } from '../../../core/services/produit.service';
 import { CommandeService } from '../../../core/services/commande.service';
+import { DashboardService } from '../../../core/services/dashboard.service';
 
 @Component({
   selector: 'app-merchant-dashboard',
@@ -19,6 +21,14 @@ export class MerchantDashboardComponent implements OnInit {
   totalCommandes = 0;
   chiffreAffaires = 0;
   produitsRuptureStock = 0;
+
+  // Loyer stats
+  totalLoyerMensuel = 0;
+  loyersImpayes: any[] = [];
+  totalImpayes = 0;
+
+  // Evolution CA
+  evolutionCA: { mois: number; montant: number }[] = [];
 
   // Données
   mesBoutiques: any[] = [];
@@ -36,7 +46,8 @@ export class MerchantDashboardComponent implements OnInit {
     private authService: AuthService,
     private boutiqueService: BoutiqueService,
     private produitService: ProduitService,
-    private commandeService: CommandeService
+    private commandeService: CommandeService,
+    private dashboardService: DashboardService
   ) {}
 
   ngOnInit(): void {
@@ -48,69 +59,79 @@ export class MerchantDashboardComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // Charger les boutiques du commerçant
-    this.loadMesBoutiques();
+    // Charger les stats loyer depuis le backend (indépendant)
+    this.loadMerchantStats();
 
-    // Charger les statistiques
-    this.loadStats();
-
-    // Charger les dernières commandes
-    this.loadDernieresCommandes();
-
-    // Charger les produits à faible stock
-    this.loadProduitsStockFaible();
-
-    this.isLoading = false;
-  }
-
-  loadMesBoutiques(): void {
+    // Charger les boutiques d'abord, puis les données dépendantes
     this.boutiqueService.getAll().subscribe({
       next: (response: any) => {
         const allBoutiques = response.data || response;
-        // Filtrer les boutiques du commerçant connecté
-        if (this.currentUser && this.currentUser.boutiques) {
-          this.mesBoutiques = allBoutiques.filter((b: any) =>
-            this.currentUser.boutiques.includes(b._id)
-          );
-        }
+        this.mesBoutiques = allBoutiques.filter((b: any) =>
+          b.commercant?._id === this.currentUser?._id || b.commercant === this.currentUser?._id
+        );
+
+        // Maintenant charger les données par boutique
+        this.loadStatsFromBoutiques();
+        this.isLoading = false;
       },
       error: (err: any) => {
-        console.error('Erreur chargement boutiques:', err);
+        this.errorMessage = 'Erreur lors du chargement';
+        console.error(err);
+        this.isLoading = false;
       }
     });
   }
 
-  loadStats(): void {
-    // Total produits
-    this.produitService.getProduits().subscribe({
+  loadMerchantStats(): void {
+    this.dashboardService.getMerchantStats().subscribe({
       next: (response: any) => {
-        const allProduits = response.data || response;
-        // Filtrer les produits des boutiques du commerçant
-        const mesProduits = allProduits.filter((p: any) =>
-          this.mesBoutiques.some(b => b._id === p.boutique?._id || p.boutique)
-        );
-        this.totalProduits = mesProduits.length;
-
-        // Produits en rupture de stock
-        this.produitsRuptureStock = mesProduits.filter((p: any) => p.stock === 0).length;
+        if (response.success) {
+          const data = response.data;
+          this.totalLoyerMensuel = data.loyers.totalMensuel;
+          this.loyersImpayes = data.loyers.loyersImpayes || [];
+          this.totalImpayes = data.loyers.totalImpayes;
+          this.evolutionCA = data.evolutionCA || [];
+        }
       },
       error: (err: any) => {
-        console.error('Erreur chargement produits:', err);
+        console.error('Erreur chargement stats merchant:', err);
       }
     });
+  }
 
-    // Total commandes et chiffre d'affaires du mois
-    this.commandeService.getAllCommandes().subscribe({
-      next: (response: any) => {
-        const allCommandes = response.data || response;
-        // Filtrer les commandes des boutiques du commerçant
-        const mesCommandes = allCommandes.filter((c: any) =>
-          this.mesBoutiques.some(b => b._id === c.boutique?._id || c.boutique)
-        );
+  loadStatsFromBoutiques(): void {
+    if (this.mesBoutiques.length === 0) return;
+
+    // Charger produits et commandes pour chaque boutique
+    const produitRequests = this.mesBoutiques.map(b =>
+      this.produitService.getProduitsByBoutique(b._id)
+    );
+    const commandeRequests = this.mesBoutiques.map(b =>
+      this.commandeService.getCommandesByBoutique(b._id)
+    );
+
+    // Produits
+    forkJoin(produitRequests).subscribe({
+      next: (responses: any[]) => {
+        const allProduits = responses.flatMap(r => r.data || r);
+        this.totalProduits = allProduits.length;
+        this.produitsRuptureStock = allProduits.filter((p: any) => p.stock === 0).length;
+        this.produitsStockFaible = allProduits
+          .filter((p: any) => p.stock > 0 && p.stock < 10)
+          .sort((a: any, b: any) => a.stock - b.stock)
+          .slice(0, 5);
+      },
+      error: (err) => console.error('Erreur chargement produits:', err)
+    });
+
+    // Commandes
+    forkJoin(commandeRequests).subscribe({
+      next: (responses: any[]) => {
+        const allCommandes = responses.flatMap(r => r.data || r);
 
         // Commandes du mois en cours
         const now = new Date();
-        const moisEnCours = mesCommandes.filter((c: any) => {
+        const moisEnCours = allCommandes.filter((c: any) => {
           const dateCommande = new Date(c.dateCommande || c.createdAt);
           return dateCommande.getMonth() === now.getMonth() &&
                  dateCommande.getFullYear() === now.getFullYear();
@@ -118,51 +139,17 @@ export class MerchantDashboardComponent implements OnInit {
 
         this.totalCommandes = moisEnCours.length;
         this.chiffreAffaires = moisEnCours.reduce((sum: number, c: any) => sum + (c.montantTotal || 0), 0);
-      },
-      error: (err: any) => {
-        console.error('Erreur chargement commandes:', err);
-      }
-    });
-  }
 
-  loadDernieresCommandes(): void {
-    this.commandeService.getAllCommandes().subscribe({
-      next: (response: any) => {
-        const allCommandes = response.data || response;
-        // Filtrer et trier les commandes
-        const mesCommandes = allCommandes
-          .filter((c: any) => this.mesBoutiques.some(b => b._id === c.boutique?._id || c.boutique))
+        // Dernières commandes
+        this.dernieresCommandes = allCommandes
           .sort((a: any, b: any) => {
             const dateA = new Date(a.dateCommande || a.createdAt);
             const dateB = new Date(b.dateCommande || b.createdAt);
             return dateB.getTime() - dateA.getTime();
           })
           .slice(0, 5);
-
-        this.dernieresCommandes = mesCommandes;
       },
-      error: (err: any) => {
-        console.error('Erreur chargement dernières commandes:', err);
-      }
-    });
-  }
-
-  loadProduitsStockFaible(): void {
-    this.produitService.getProduits().subscribe({
-      next: (response) => {
-        const allProduits = response.data || response;
-        // Filtrer les produits avec stock faible (< 10)
-        this.produitsStockFaible = allProduits
-          .filter((p: any) => {
-            const isMaBoutique = this.mesBoutiques.some(b => b._id === p.boutique?._id || p.boutique);
-            return isMaBoutique && p.stock > 0 && p.stock < 10;
-          })
-          .sort((a: any, b: any) => a.stock - b.stock)
-          .slice(0, 5);
-      },
-      error: (err) => {
-        console.error('Erreur chargement produits stock faible:', err);
-      }
+      error: (err) => console.error('Erreur chargement commandes:', err)
     });
   }
 
@@ -170,16 +157,12 @@ export class MerchantDashboardComponent implements OnInit {
     switch (statut) {
       case 'nouvelle':
         return 'bg-blue-100 text-blue-800';
-      case 'confirmee':
-        return 'bg-green-100 text-green-800';
-      case 'en_preparation':
+      case 'en_cours':
         return 'bg-yellow-100 text-yellow-800';
-      case 'prete':
-        return 'bg-purple-100 text-purple-800';
+      case 'terminee':
+        return 'bg-green-100 text-green-800';
       case 'livree':
         return 'bg-emerald-100 text-emerald-800';
-      case 'annulee':
-        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -196,5 +179,19 @@ export class MerchantDashboardComponent implements OnInit {
     const boutique = this.mesBoutiques.find(b => b._id === boutiqueId);
     return boutique ? boutique.nom : 'Boutique inconnue';
   }
-}
 
+  getMonthName(month: number): string {
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+    return months[month - 1] || '';
+  }
+
+  getBarHeight(montant: number): string {
+    const max = Math.max(...this.evolutionCA.map(m => m.montant), 1);
+    const height = Math.round((montant / max) * 200);
+    return height + 'px';
+  }
+
+  get totalCAannuel(): number {
+    return this.evolutionCA.reduce((sum, m) => sum + m.montant, 0);
+  }
+}
