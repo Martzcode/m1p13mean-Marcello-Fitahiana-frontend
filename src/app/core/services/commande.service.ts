@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class CommandeService {
-  private apiUrl = 'http://localhost:3000/api/v1/commandes';
+  private apiUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/api/v1/commandes';
 
   constructor(private http: HttpClient) { }
 
@@ -47,7 +47,7 @@ export class CommandeService {
    * @param filters - Filtres optionnels
    */
   getCommandesByBoutique(boutiqueId: string, filters?: any): Observable<any> {
-    const url = `http://localhost:3000/api/v1/boutiques/${boutiqueId}/commandes`;
+    const url = `${window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app'}/api/v1/boutiques/${boutiqueId}/commandes`;
     return this.http.get<any>(url, { params: filters });
   }
 

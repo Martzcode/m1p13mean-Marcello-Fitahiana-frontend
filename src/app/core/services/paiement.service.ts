@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class PaiementService {
-  private apiUrl = 'http://localhost:3000/api/v1/paiements';
+  private apiUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/api/v1/paiements';
 
   constructor(private http: HttpClient) { }
 
@@ -77,7 +77,7 @@ export class PaiementService {
    * @param boutiqueId - ID de la boutique
    */
   getPaiementsByBoutique(boutiqueId: string, filters?: any): Observable<any> {
-    const url = `http://localhost:3000/api/v1/boutiques/${boutiqueId}/paiements`;
+    const url = `${window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app'}/api/v1/boutiques/${boutiqueId}/paiements`;
     return this.http.get<any>(url, { params: filters });
   }
 

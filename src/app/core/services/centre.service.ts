@@ -7,7 +7,7 @@ import { CentreCommercial } from '../models/centre.model';
   providedIn: 'root'
 })
 export class CentreService {
-  private apiUrl = 'http://localhost:3000/api/v1/centre';
+  private apiUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/api/v1/centre';
 
   constructor(private http: HttpClient) { }
 

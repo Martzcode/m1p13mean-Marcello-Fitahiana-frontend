@@ -54,7 +54,7 @@ export class ProfileComponent implements OnInit {
         this.telephone = user.telephone || '';
         this.adresse = user.adresse || '';
         if (user.photo && user.photo !== 'default-user.jpg') {
-          this.photoUrl = 'http://localhost:3000/uploads/' + user.photo;
+          this.photoUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/uploads/' + user.photo;
         } else {
           this.photoUrl = '';
         }
@@ -154,7 +154,7 @@ export class ProfileComponent implements OnInit {
     this.authService.uploadPhoto(file).subscribe({
       next: (response: any) => {
         if (response.success && response.data.photo) {
-          this.photoUrl = 'http://localhost:3000/uploads/' + response.data.photo;
+          this.photoUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/uploads/' + response.data.photo;
         }
         this.successMessage = 'Photo mise à jour avec succès';
         this.isUploadingPhoto = false;

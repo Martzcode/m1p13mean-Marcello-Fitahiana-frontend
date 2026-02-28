@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ProduitService {
-  private apiUrl = 'http://localhost:3000/api/v1/produits';
+  private apiUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/api/v1/produits';
 
   constructor(private http: HttpClient) { }
 
@@ -31,7 +31,7 @@ export class ProduitService {
    * @param boutiqueId - ID de la boutique
    */
   getProduitsByBoutique(boutiqueId: string, filters?: any): Observable<any> {
-    const url = `http://localhost:3000/api/v1/boutiques/${boutiqueId}/produits`;
+    const url = `${window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app'}/api/v1/boutiques/${boutiqueId}/produits`;
     return this.http.get<any>(url, { params: filters });
   }
 

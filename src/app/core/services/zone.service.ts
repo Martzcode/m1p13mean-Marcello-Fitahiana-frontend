@@ -7,7 +7,7 @@ import { Zone } from '../models/zone.model';
   providedIn: 'root'
 })
 export class ZoneService {
-  private apiUrl = 'http://localhost:3000/api/v1/zones';
+  private apiUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/api/v1/zones';
 
   constructor(private http: HttpClient) { }
 

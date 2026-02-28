@@ -7,7 +7,7 @@ import { DashboardStats } from '../models/dashboard.model';
   providedIn: 'root'
 })
 export class DashboardService {
-  private apiUrl = 'http://localhost:3000/api/v1/dashboard';
+  private apiUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/api/v1/dashboard';
 
   constructor(private http: HttpClient) { }
 

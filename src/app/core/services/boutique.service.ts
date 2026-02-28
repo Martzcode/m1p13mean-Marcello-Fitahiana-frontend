@@ -7,7 +7,7 @@ import { Boutique } from '../models/boutique.model';
   providedIn: 'root'
 })
 export class BoutiqueService {
-  private apiUrl = 'http://localhost:3000/api/v1/boutiques';
+  private apiUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/api/v1/boutiques';
 
   constructor(private http: HttpClient) { }
 
