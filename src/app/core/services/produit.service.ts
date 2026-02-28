@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProduitService {
-  private apiUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/api/v1/produits';
+  private apiUrl = environment.apiUrl + '/api/v1/produits';
 
   constructor(private http: HttpClient) { }
 
@@ -31,7 +32,7 @@ export class ProduitService {
    * @param boutiqueId - ID de la boutique
    */
   getProduitsByBoutique(boutiqueId: string, filters?: any): Observable<any> {
-    const url = `${window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app'}/api/v1/boutiques/${boutiqueId}/produits`;
+    const url = `${environment.apiUrl}/api/v1/boutiques/${boutiqueId}/produits`;
     return this.http.get<any>(url, { params: filters });
   }
 

@@ -1,8 +1,10 @@
+import { environment } from '../../../environments/environment';
+
 // Base URLs et configuration
 export const API_CONFIG = {
   // En production Docker, utiliser le nom du service
   // En dev local, utiliser localhost:3000
-  BASE_URL: window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app',
+  BASE_URL: environment.apiUrl,
   API_VERSION: 'v1',
   get API_URL() {
     return `${this.BASE_URL}/api/${this.API_VERSION}`;

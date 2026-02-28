@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -54,7 +55,7 @@ export class ProfileComponent implements OnInit {
         this.telephone = user.telephone || '';
         this.adresse = user.adresse || '';
         if (user.photo && user.photo !== 'default-user.jpg') {
-          this.photoUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/uploads/' + user.photo;
+          this.photoUrl = environment.apiUrl + '/uploads/' + user.photo;
         } else {
           this.photoUrl = '';
         }
@@ -154,7 +155,7 @@ export class ProfileComponent implements OnInit {
     this.authService.uploadPhoto(file).subscribe({
       next: (response: any) => {
         if (response.success && response.data.photo) {
-          this.photoUrl = (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://m1p13mean-marcello-fitahiana-backen.vercel.app') + '/uploads/' + response.data.photo;
+          this.photoUrl = environment.apiUrl + '/uploads/' + response.data.photo;
         }
         this.successMessage = 'Photo mise à jour avec succès';
         this.isUploadingPhoto = false;
